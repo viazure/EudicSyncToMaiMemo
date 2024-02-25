@@ -1,26 +1,22 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 namespace EudicSyncToMaiMemo.Infrastructure.ServiceExtensions
 {
     public static class SerilogSetup
     {
-        public static IHostBuilder AddSerilogSetup(this IHostBuilder builder)
+        public static IServiceCollection AddSerilogSetup(this IServiceCollection services, IConfiguration configuration)
         {
-            builder.ConfigureServices((hostContext, services) =>
-            {
-                var configuration = hostContext.Configuration;
-                var loggerConfiguration = new LoggerConfiguration()
-                    .ReadFrom.Configuration(configuration)
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console();
+            var loggerConfiguration = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console();
 
-                Log.Logger = loggerConfiguration.CreateLogger();
-            });
+            var logger = loggerConfiguration.CreateLogger();
+            services.AddSerilog(logger);
 
-            builder.UseSerilog();
-
-            return builder;
+            return services;
         }
     }
 }

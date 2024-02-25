@@ -1,25 +1,32 @@
 using EudicSyncToMaiMemo.Infrastructure.ServiceExtensions;
+using EudicSyncToMaiMemo.Services.BackgroundServices;
 using Serilog;
-using Serilog.Events;
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
     .WriteTo.Console()
-    .CreateLogger();
+    .CreateBootstrapLogger();
 
 try
 {
     Log.Information("Starting application");
 
-    IHostBuilder builder = Host.CreateDefaultBuilder(args);
+    var builder = Host.CreateApplicationBuilder(args);
 
-    // 托管服务与依赖注入的服务接口
-    builder.AddServices();
+    // Configures the app to work as a Windows Service.
+    builder.Services.AddWindowsService(options =>
+    {
+        options.ServiceName = "Eudic Sync To MaiMemo Service";
+    });
 
-    // Serilog 日志
-    builder.AddSerilogSetup();
+    // Add the hosted service for synchronization.
+    builder.Services.AddHostedService<SyncBackgroundService>();
+
+    // Set up Serilog using the provided configuration.
+    builder.Services.AddSerilogSetup(builder.Configuration);
+
+    // Add additional services.
+    builder.Services.AddAdditionalServices();
 
     using IHost host = builder.Build();
     await host.RunAsync();
