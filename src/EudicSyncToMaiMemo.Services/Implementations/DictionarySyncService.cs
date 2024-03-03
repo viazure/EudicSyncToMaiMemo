@@ -18,10 +18,11 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         public async Task SyncDictionariesAsync(CancellationToken stoppingToken)
         {
             // 获取欧路词典词库列表
-            var eudicWords = await eudicService.GetWords();
+            //var eudicWords = await eudicService.GetWords();
 
-            logger.LogInformation("eudicWords: {text}", string.Join(",", eudicWords));
+            //logger.LogInformation("eudicWords: {text}", string.Join(",", eudicWords));
 
+            await maiMemoService.Test();
         }
     }
 }

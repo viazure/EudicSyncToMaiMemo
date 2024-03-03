@@ -6,23 +6,16 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
     /// <summary>
     /// HTTP 请求帮助类
     /// </summary>
-    public class HttpHelper : IHttpHelper
+    public class HttpHelper(IHttpClientFactory httpClientFactory, ILogger<HttpHelper> logger) : IHttpHelper
     {
-        private readonly HttpClient _httpClient;
-        private readonly ILogger<HttpHelper> _logger;
-
-        public HttpHelper(IHttpClientFactory httpClientFactory, ILogger<HttpHelper> logger)
-        {
-            _httpClient = httpClientFactory.CreateClient();
-            _logger = logger;
-        }
+        private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
         /// <summary>
         /// 发送 GET 请求
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="headers"></param>
-        /// <returns></returns>
+        /// <returns>响应消息体</returns>
         public async Task<string> GetAsync(string uri, Dictionary<string, string>? headers = null)
         {
             try
@@ -38,18 +31,13 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
                 }
 
                 var response = await _httpClient.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogError("HTTP request failed:{StatusCode}", response.StatusCode);
-                    return string.Empty;
-                }
+                response.EnsureSuccessStatusCode();
 
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Interface request failed.");
+                logger.LogError(ex, "GetAsync failed：{Message}", ex.Message);
             }
 
             return string.Empty;
@@ -61,7 +49,7 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
         /// <param name="uri"></param>
         /// <param name="requestJson"></param>
         /// <param name="headers"></param>
-        /// <returns></returns>
+        /// <returns>响应消息体</returns>
         public async Task<string> PostAsync(string uri, string requestJson, Dictionary<string, string>? headers = null)
         {
             try
@@ -81,18 +69,13 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
                 }
 
                 var response = await _httpClient.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogError("HTTP request failed:{StatusCode}", response.StatusCode);
-                    return string.Empty;
-                }
+                response.EnsureSuccessStatusCode();
 
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Interface request failed.");
+                logger.LogError(ex, "PostAsync failed：{Message}", ex.Message);
             }
 
             return string.Empty;
@@ -104,12 +87,19 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
         /// <param name="uri"></param>
         /// <param name="text"></param>
         /// <param name="headers"></param>
-        /// <returns></returns>
-        public async Task<string> PostPlainTextAsync(string uri, string text, Dictionary<string, string>? headers = null)
+        /// <returns>响应消息体，Cookie</returns>
+        public async Task<(string response, Dictionary<string, string> cookie)> PostPlainTextAsync(
+          string uri, string text, Dictionary<string, string>? headers = null)
         {
             try
             {
-                var content = new StringContent(text, Encoding.UTF8, "text/plain");
+                var handler = new HttpClientHandler
+                {
+                    CookieContainer = new System.Net.CookieContainer()
+                };
+
+                using var httpClient = new HttpClient(handler);
+                var content = new StringContent(text, Encoding.UTF8, "application/x-www-form-urlencoded");
                 using var request = new HttpRequestMessage(HttpMethod.Post, uri)
                 {
                     Content = content
@@ -123,22 +113,25 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
                     }
                 }
 
-                var response = await _httpClient.SendAsync(request);
+                var response = await httpClient.SendAsync(request);
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogError("HTTP request failed:{StatusCode}", response.StatusCode);
-                    return string.Empty;
-                }
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
 
-                return await response.Content.ReadAsStringAsync();
+                // Get cookies from the cookie container
+                var cookieCollection = handler.CookieContainer.GetCookies(new Uri(uri));
+                var cookies = cookieCollection
+                  .Cast<System.Net.Cookie>()
+                  .ToDictionary(cookie => cookie.Name, cookie => cookie.Value);
+
+                return (responseBody, cookies);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{Message}", ex.Message);
+                logger.LogError(ex, "PostPlainTextAsync failed：{Message}", ex.Message);
             }
 
-            return string.Empty;
+            return (string.Empty, []);
         }
     }
 }

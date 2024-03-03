@@ -43,9 +43,9 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             {
                 { "Authorization", GetAuthorization() }
             };
-            string result = await httpHelper.GetAsync(url, headers);
+            string responseString = await httpHelper.GetAsync(url, headers);
 
-            var eudicWords = JsonHelper.Deserialize<ApiResponse<WordDto>>(result)?.Data;
+            var eudicWords = JsonHelper.Deserialize<ApiResponse<WordDto>>(responseString)?.Data;
 
             if (eudicWords == null)
             {

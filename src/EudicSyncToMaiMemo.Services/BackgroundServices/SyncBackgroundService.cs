@@ -47,11 +47,13 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
             logger.LogInformation(
             "{Name} is working.", ClassName);
 
-            using IServiceScope scope = serviceScopeFactory.CreateScope();
-            var dictionarySyncService =
-                scope.ServiceProvider.GetRequiredService<IDictionarySyncService>();
+            using (IServiceScope scope = serviceScopeFactory.CreateScope())
+            {
+                var dictionarySyncService =
+                    scope.ServiceProvider.GetRequiredService<IDictionarySyncService>();
 
-            await dictionarySyncService.SyncDictionariesAsync(stoppingToken);
+                await dictionarySyncService.SyncDictionariesAsync(stoppingToken);
+            }
         }
 
 

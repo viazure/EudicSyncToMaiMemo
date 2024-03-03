@@ -54,10 +54,11 @@ namespace EudicSyncToMaiMemo.Tests.Helpers
             var text = "example text";
 
             // Act
-            var response = await _httpHelper.PostPlainTextAsync("https://postman-echo.com/not-found", text);
+            var (response, cookie) = await _httpHelper.PostPlainTextAsync("https://postman-echo.com/not-found", text);
 
             // Assert
             Assert.Equal(string.Empty, response);
+            Assert.Equal([], cookie);
         }
 
         [Fact]
@@ -81,11 +82,13 @@ namespace EudicSyncToMaiMemo.Tests.Helpers
             var text = "example text";
 
             // Act
-            var response = await _httpHelper.PostPlainTextAsync("https://postman-echo.com/post", text);
+            var (response, cookie) = await _httpHelper.PostPlainTextAsync("https://postman-echo.com/post", text);
 
             // Assert
             Assert.NotNull(response);
             Assert.NotEmpty(response);
+            Assert.NotNull(cookie);
+            Assert.NotEmpty(cookie);
         }
 
         [Fact]
@@ -118,10 +121,11 @@ namespace EudicSyncToMaiMemo.Tests.Helpers
             var text = "invalid text";
 
             // Act
-            var response = await _httpHelper.PostPlainTextAsync("invalid uri", text);
+            var (response, cookie) = await _httpHelper.PostPlainTextAsync("invalid uri", text);
 
             // Assert
             Assert.Equal(string.Empty, response);
+            Assert.Equal([], cookie);
         }
     }
 }
