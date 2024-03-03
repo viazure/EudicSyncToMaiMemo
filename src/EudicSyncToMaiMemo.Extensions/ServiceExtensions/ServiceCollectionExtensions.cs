@@ -2,7 +2,7 @@
 using EudicSyncToMaiMemo.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EudicSyncToMaiMemo.Infrastructure.ServiceExtensions
+namespace EudicSyncToMaiMemo.Extensions.ServiceExtensions
 {
     public static class ServiceCollectionExtensions
     {
@@ -11,6 +11,7 @@ namespace EudicSyncToMaiMemo.Infrastructure.ServiceExtensions
             services.AddScoped<IEudicService, EudicService>();
             services.AddScoped<IMaiMemoService, MaiMemoService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IDictionarySyncService, DictionarySyncService>();
 
             return services;
         }

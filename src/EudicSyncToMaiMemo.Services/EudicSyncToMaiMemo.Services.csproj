@@ -10,4 +10,9 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EudicSyncToMaiMemo.Infrastructure\EudicSyncToMaiMemo.Infrastructure.csproj" />
+    <ProjectReference Include="..\EudicSyncToMaiMemo.Models\EudicSyncToMaiMemo.Models.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
-namespace EudicSyncToMaiMemo.Infrastructure.ServiceExtensions
+namespace EudicSyncToMaiMemo.Extensions.ServiceExtensions
 {
     public static class SerilogSetup
     {

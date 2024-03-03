@@ -1,4 +1,5 @@
-using EudicSyncToMaiMemo.Infrastructure.ServiceExtensions;
+using EudicSyncToMaiMemo.Extensions.ServiceExtensions;
+using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using EudicSyncToMaiMemo.Services.BackgroundServices;
 using Serilog;
 
@@ -27,6 +28,10 @@ try
 
     // Add additional services.
     builder.Services.AddAdditionalServices();
+
+    // Add the HttpClient.
+    builder.Services.AddHttpClient();
+    builder.Services.AddSingleton<IHttpHelper, HttpHelper>();
 
     using IHost host = builder.Build();
     await host.RunAsync();

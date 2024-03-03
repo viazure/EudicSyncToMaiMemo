@@ -4,58 +4,138 @@ using System.Text;
 namespace EudicSyncToMaiMemo.Infrastructure.Helpers
 {
     /// <summary>
-    /// HTTP请求帮助类
+    /// HTTP 请求帮助类
     /// </summary>
-    public class HttpHelper
+    public class HttpHelper : IHttpHelper
     {
-        private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
+        private readonly ILogger<HttpHelper> _logger;
 
-
-        public HttpHelper(ILogger<HttpHelper> logger)
+        public HttpHelper(IHttpClientFactory httpClientFactory, ILogger<HttpHelper> logger)
         {
+            _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
-            _httpClient = new HttpClient();
         }
 
         /// <summary>
-        /// Http Post with custom headers.
+        /// 发送 GET 请求
         /// </summary>
-        /// <param name="requestUri">请求地址</param>
-        /// <param name="data">请求数据</param>
-        /// <param name="headers">请求头</param>
-        /// <returns>Response content as string</returns>
-        public async Task<string> HttpPostAsync(string requestUri, string data, Dictionary<string, string>? headers = null)
+        /// <param name="uri"></param>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        public async Task<string> GetAsync(string uri, Dictionary<string, string>? headers = null)
         {
             try
             {
-                var content = new StringContent(data, Encoding.UTF8, "application/json");
-
-                using var requestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri);
-                requestMessage.Content = content;
+                using var request = new HttpRequestMessage(HttpMethod.Get, uri);
 
                 if (headers != null)
                 {
                     foreach (var header in headers)
                     {
-                        requestMessage.Headers.Add(header.Key, header.Value);
+                        request.Headers.Add(header.Key, header.Value);
                     }
                 }
 
-                var response = await _httpClient.SendAsync(requestMessage);
+                var response = await _httpClient.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogError($"Http 请求失败，{response.StatusCode}");
+                    _logger.LogError("HTTP request failed:{StatusCode}", response.StatusCode);
                     return string.Empty;
                 }
 
-                string result = await response.Content.ReadAsStringAsync();
-                return result;
+                return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "接口请求失败。");
+                _logger.LogError(ex, "Interface request failed.");
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 发送 JSON 请求
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="requestJson"></param>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        public async Task<string> PostAsync(string uri, string requestJson, Dictionary<string, string>? headers = null)
+        {
+            try
+            {
+                var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+                using var request = new HttpRequestMessage(HttpMethod.Post, uri)
+                {
+                    Content = content
+                };
+
+                if (headers != null)
+                {
+                    foreach (var header in headers)
+                    {
+                        request.Headers.Add(header.Key, header.Value);
+                    }
+                }
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("HTTP request failed:{StatusCode}", response.StatusCode);
+                    return string.Empty;
+                }
+
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Interface request failed.");
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 发送文本请求
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="text"></param>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        public async Task<string> PostPlainTextAsync(string uri, string text, Dictionary<string, string>? headers = null)
+        {
+            try
+            {
+                var content = new StringContent(text, Encoding.UTF8, "text/plain");
+                using var request = new HttpRequestMessage(HttpMethod.Post, uri)
+                {
+                    Content = content
+                };
+
+                if (headers != null)
+                {
+                    foreach (var header in headers)
+                    {
+                        request.Headers.Add(header.Key, header.Value);
+                    }
+                }
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("HTTP request failed:{StatusCode}", response.StatusCode);
+                    return string.Empty;
+                }
+
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", ex.Message);
             }
 
             return string.Empty;

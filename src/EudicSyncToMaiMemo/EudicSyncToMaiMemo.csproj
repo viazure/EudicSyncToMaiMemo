@@ -19,6 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EudicSyncToMaiMemo.Infrastructure\EudicSyncToMaiMemo.Infrastructure.csproj" />
+    <ProjectReference Include="..\EudicSyncToMaiMemo.Extensions\EudicSyncToMaiMemo.Extensions.csproj" />
+    <ProjectReference Include="..\EudicSyncToMaiMemo.Services\EudicSyncToMaiMemo.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="logs\" />
   </ItemGroup>
 </Project>

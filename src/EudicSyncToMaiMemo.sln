@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EudicSyncToMaiMemo.Models",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EudicSyncToMaiMemo", "EudicSyncToMaiMemo\EudicSyncToMaiMemo.csproj", "{BD5A7C71-D86D-413F-A3C7-D9CD4FA2B76B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EudicSyncToMaiMemo.Tests", "EudicSyncToMaiMemo.Tests\EudicSyncToMaiMemo.Tests.csproj", "{19A62468-443E-4A4D-978A-BDF813502FAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EudicSyncToMaiMemo.Tests", "EudicSyncToMaiMemo.Tests\EudicSyncToMaiMemo.Tests.csproj", "{19A62468-443E-4A4D-978A-BDF813502FAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EudicSyncToMaiMemo.Extensions", "EudicSyncToMaiMemo.Extensions\EudicSyncToMaiMemo.Extensions.csproj", "{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{19A62468-443E-4A4D-978A-BDF813502FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19A62468-443E-4A4D-978A-BDF813502FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19A62468-443E-4A4D-978A-BDF813502FAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
