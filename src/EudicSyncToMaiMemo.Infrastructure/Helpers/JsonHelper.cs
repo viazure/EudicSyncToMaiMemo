@@ -7,12 +7,12 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
     public class JsonHelper
     {
 
-        public static string Serialize<T>(T value)
+        public static string ObjToJson<T>(T value)
         {
             return JsonConvert.SerializeObject(value);
         }
 
-        public static T? Deserialize<T>(string jsonString)
+        public static T? JsonToObj<T>(string jsonString)
         {
             if (string.IsNullOrEmpty(jsonString))
             {

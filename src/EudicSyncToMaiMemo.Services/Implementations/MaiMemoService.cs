@@ -3,7 +3,6 @@ using EudicSyncToMaiMemo.Models.DTOs.MaiMemo;
 using EudicSyncToMaiMemo.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Web;
 
 namespace EudicSyncToMaiMemo.Services.Implementations
 {
@@ -33,9 +32,11 @@ namespace EudicSyncToMaiMemo.Services.Implementations
                 { "referer", "https://www.maimemo.com/home/login" },
             };
 
-            var (responseString, cookie) = await httpHelper.PostPlainTextAsync(url, GetLoginString(), headers);
+            var formData = GetLoginForm();
 
-            var response = JsonHelper.Deserialize<ApiResponse>(responseString);
+            var (responseString, cookie) = await httpHelper.PostFoRmAsync(url, formData, headers);
+            var response = JsonHelper.JsonToObj<ApiResponse>(responseString);
+
             const int ValidNumber = 1;
             if (response == null || response.Valid != ValidNumber)
             {
@@ -45,9 +46,19 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             return cookie;
         }
 
-        private string GetLoginString()
+        private FormUrlEncodedContent GetLoginForm()
         {
-            return "email=" + GetUsername() + "&password=" + GetPassword();
+            string username = GetUsername();
+            string password = GetPassword();
+
+            var collection = new List<KeyValuePair<string, string>>
+            {
+                new("email", username),
+                new("password", password)
+            };
+            var content = new FormUrlEncodedContent(collection);
+
+            return content;
         }
 
         /// <summary>
@@ -63,7 +74,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
                 throw new Exception("墨墨背单词用户名为空。");
             }
 
-            return HttpUtility.UrlEncode(username);
+            return username;
         }
 
         /// <summary>
@@ -79,7 +90,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
                 throw new Exception("墨墨背单词密码为空。");
             }
 
-            return HttpUtility.UrlEncode(password);
+            return password;
         }
     }
 }

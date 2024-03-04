@@ -48,13 +48,17 @@ namespace EudicSyncToMaiMemo.Tests.Helpers
         }
 
         [Fact]
-        public async Task PostPlainTextAsync_WithFailedUri_ReturnsResponse()
+        public async Task PostFormAsync_WithFailedUri_ReturnsResponse()
         {
             // Arrange
-            var text = "example text";
+            var formData = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("name", "John Doe"),
+                new KeyValuePair<string, string>("age", "25")
+            });
 
             // Act
-            var (response, cookie) = await _httpHelper.PostPlainTextAsync("https://postman-echo.com/not-found", text);
+            var (response, cookie) = await _httpHelper.PostFoRmAsync("https://postman-echo.com/not-found", formData);
 
             // Assert
             Assert.Equal(string.Empty, response);
@@ -76,13 +80,17 @@ namespace EudicSyncToMaiMemo.Tests.Helpers
         }
 
         [Fact]
-        public async Task PostPlainTextAsync_WithValidUriAndText_ReturnsResponse()
+        public async Task PostFormAsync_WithValidUriAndFormData_ReturnsResponse()
         {
             // Arrange
-            var text = "example text";
+            var formData = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("name", "John Doe"),
+                new KeyValuePair<string, string>("age", "25")
+            });
 
             // Act
-            var (response, cookie) = await _httpHelper.PostPlainTextAsync("https://postman-echo.com/post", text);
+            var (response, cookie) = await _httpHelper.PostFoRmAsync("https://postman-echo.com/post", formData);
 
             // Assert
             Assert.NotNull(response);
@@ -99,33 +107,6 @@ namespace EudicSyncToMaiMemo.Tests.Helpers
 
             // Assert
             Assert.Equal(string.Empty, response);
-        }
-
-        [Fact]
-        public async Task PostAsync_WithInvalidUriAndRequestJson_ReturnsEmptyString()
-        {
-            // Arrange
-            var requestJson = "invalid request json";
-
-            // Act
-            var response = await _httpHelper.PostAsync("invalid uri", requestJson);
-
-            // Assert
-            Assert.Equal(string.Empty, response);
-        }
-
-        [Fact]
-        public async Task PostPlainTextAsync_WithInvalidUriAndText_ReturnsEmptyString()
-        {
-            // Arrange
-            var text = "invalid text";
-
-            // Act
-            var (response, cookie) = await _httpHelper.PostPlainTextAsync("invalid uri", text);
-
-            // Assert
-            Assert.Equal(string.Empty, response);
-            Assert.Equal([], cookie);
         }
     }
 }

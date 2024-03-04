@@ -26,7 +26,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             };
             string result = await httpHelper.GetAsync(url);
 
-            return JsonHelper.Deserialize<ApiResponse<BookDto>>(result)?.Data ?? [];
+            return JsonHelper.JsonToObj<ApiResponse<BookDto>>(result)?.Data ?? [];
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             };
             string responseString = await httpHelper.GetAsync(url, headers);
 
-            var eudicWords = JsonHelper.Deserialize<ApiResponse<WordDto>>(responseString)?.Data;
+            var eudicWords = JsonHelper.JsonToObj<ApiResponse<WordDto>>(responseString)?.Data;
 
             if (eudicWords == null)
             {

@@ -88,8 +88,8 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
         /// <param name="text"></param>
         /// <param name="headers"></param>
         /// <returns>响应消息体，Cookie</returns>
-        public async Task<(string response, Dictionary<string, string> cookie)> PostPlainTextAsync(
-          string uri, string text, Dictionary<string, string>? headers = null)
+        public async Task<(string response, Dictionary<string, string> cookie)> PostFoRmAsync(
+          string uri, FormUrlEncodedContent formData, Dictionary<string, string>? headers = null)
         {
             try
             {
@@ -99,10 +99,9 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
                 };
 
                 using var httpClient = new HttpClient(handler);
-                var content = new StringContent(text, Encoding.UTF8, "application/x-www-form-urlencoded");
                 using var request = new HttpRequestMessage(HttpMethod.Post, uri)
                 {
-                    Content = content
+                    Content = formData
                 };
 
                 if (headers != null)

@@ -32,7 +32,7 @@
 | 墨墨背单词 | Password         | 用于登录的密码                           | True  |
 | 墨墨背单词 | DefaultNotepadId | 默认同步的云词库 id                      | False |
 
-## 路线图
+## Todo
 
 - [ ] 默认词库自动同步
 - [ ] 接入消息通知服务
