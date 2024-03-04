@@ -5,6 +5,6 @@
     /// </summary>
     public interface IMaiMemoService
     {
-        Task Test();
+        Task<List<string>> GetWords(string? notepadId = null);
     }
 }

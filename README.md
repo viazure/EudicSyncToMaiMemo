@@ -12,12 +12,12 @@
 
 ## 使用说明
 
-1. 获取欧路词典的开放 API 的授权信息。<https://my.eudic.net/OpenAPI/Authorization)>
+1. 获取欧路词典的开放 API 的授权信息。<https://my.eudic.net/OpenAPI/Authorization>
 2. 登录[墨墨背单词网页版](https://www.maimemo.com/)，进入「我的编辑」-「云词库」。
 3. 新建或选择需要同步的云词库，复制网址中的云词库 ID。例如 `https://www.maimemo.com/notepad/detail/1234567?scene=`,这里的 `1234567` 就是当前云词库的 ID。
 4. 修改项目配置文件，填入相应内容。
 
-   **项目配置 `appsettings.json`：**
+   **配置文件 `appsettings.json`**
 
    ```json
    {
