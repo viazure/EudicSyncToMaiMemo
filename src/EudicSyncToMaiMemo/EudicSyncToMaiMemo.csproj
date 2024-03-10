@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -20,9 +20,5 @@
   <ItemGroup>
     <ProjectReference Include="..\EudicSyncToMaiMemo.Extensions\EudicSyncToMaiMemo.Extensions.csproj" />
     <ProjectReference Include="..\EudicSyncToMaiMemo.Services\EudicSyncToMaiMemo.Services.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="logs\" />
   </ItemGroup>
 </Project>
