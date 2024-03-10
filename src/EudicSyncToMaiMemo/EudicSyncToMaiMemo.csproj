@@ -5,7 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <PublishAot>true</PublishAot>
     <UserSecretsId>dotnet-EudicSyncToMaiMemo-0a41e9fe-77a9-486e-b0d8-c7051eda840d</UserSecretsId>
   </PropertyGroup>
 
