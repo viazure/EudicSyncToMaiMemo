@@ -9,6 +9,6 @@ namespace EudicSyncToMaiMemo.Services.Interfaces
     {
         Task<List<BookDto>> GetAllBooks();
 
-        Task<List<string>> GetWords(string? bookId = null);
+        Task<List<string>> GetWords(string bookId);
     }
 }

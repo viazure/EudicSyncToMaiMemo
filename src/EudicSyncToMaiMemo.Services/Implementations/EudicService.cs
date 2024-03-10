@@ -34,9 +34,8 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// </summary>
         /// <param name="bookId">单词本 ID</param>
         /// <returns></returns>
-        public async Task<List<string>> GetWords(string? bookId = null)
+        public async Task<List<string>> GetWords(string bookId)
         {
-            bookId ??= configuration.GetSection("Eudic:DefaultBookId").Value ?? "0";
             string url = $"{ApiEndpoint}studylist/words/{bookId}?language=en";
 
             var headers = new Dictionary<string, string>

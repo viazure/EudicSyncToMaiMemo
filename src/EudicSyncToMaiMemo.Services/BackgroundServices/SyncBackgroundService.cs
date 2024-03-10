@@ -25,8 +25,8 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
                 {
                     await DoWorkAsync(stoppingToken);
 
-                    logger.LogInformation("The current time is: {CurrentTime}", DateTimeOffset.Now);
-                    await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                    // 一周同步一次
+                    await Task.Delay(TimeSpan.FromDays(7), stoppingToken);
                 }
             }
             catch (OperationCanceledException)

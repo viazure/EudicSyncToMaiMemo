@@ -5,6 +5,6 @@
     /// </summary>
     public interface IMaiMemoService
     {
-        Task<List<string>> GetWords(string? notepadId = null);
+        Task<bool> SyncToMaimemoNotepad(string notepadId, IEnumerable<string> eudicWords);
     }
 }
