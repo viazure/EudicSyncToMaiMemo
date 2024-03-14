@@ -45,6 +45,11 @@
 
 5. 运行 `EudicSyncToMaiMemo.exe`，每次运行会进行一次默认生词本的同步。
 
+## 项目依赖
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0)
+- Visual Studio 2022 版本 17.8 或更高版本
+
 ## Todo
 
 - [x] MVP 版本：默认词库自动同步（控制台程序）
