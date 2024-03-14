@@ -35,15 +35,15 @@
 
    **字段说明：**
 
-   | 来源       | 字段名           | 说明                                     | 必填  |
-   | ---------- | ---------------- | ---------------------------------------- | ----- |
-   | 欧路词典   | Authorization    | 接口授权，有了这个授权才能请求后续的接口 | True  |
-   | 欧路词典   | DefaultBookId    | 默认同步的生词本 Id，默认生词本 id 为 0  | False |
-   | 墨墨背单词 | Username         | 用于登录的用户名（邮箱或手机号）         | True  |
-   | 墨墨背单词 | Password         | 用于登录的密码                           | True  |
-   | 墨墨背单词 | DefaultNotepadId | 默认同步的云词库 id                      | False |
+   | 来源       | 字段名           | 说明                                     | 必填 |
+   | ---------- | ---------------- | ---------------------------------------- | ---- |
+   | 欧路词典   | Authorization    | 接口授权，有了这个授权才能请求后续的接口 | True |
+   | 欧路词典   | DefaultBookId    | 默认同步的生词本 Id，默认生词本 id 为 0  | True |
+   | 墨墨背单词 | Username         | 用于登录的用户名（邮箱或手机号）         | True |
+   | 墨墨背单词 | Password         | 用于登录的密码                           | True |
+   | 墨墨背单词 | DefaultNotepadId | 默认同步的云词库 id                      | True |
 
-5. 运行 EudicSyncToMaiMemo.exe。
+5. 运行 `EudicSyncToMaiMemo.exe`，每次运行会进行一次默认生词本的同步。
 
 ## Todo
 
