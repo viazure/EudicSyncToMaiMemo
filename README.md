@@ -88,7 +88,7 @@
 | 墨墨背单词 | Password         | 用于登录的密码                           | True |
 | 墨墨背单词 | DefaultNotepadId | 默认同步的云词库 id                      | True |
 
-日志文件默认存储在路径 `C:\Program Files\Eudic Sync To MaiMemo Service\logs` 中，若需要更改日志文件的存放位置，可以修改配置文件中的 Serilog 节点，具体操作是调整 WriteTo 部分中 Args 下的 path 参数。
+日志文件默认存储在程序同路径下的 `logs` 目录中，若需要更改日志文件的存放位置，可以修改配置文件中的 Serilog 节点，具体操作是调整 WriteTo 部分中 Args 下的 path 参数。
 
 ## 项目依赖
 
