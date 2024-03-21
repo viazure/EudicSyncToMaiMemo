@@ -47,18 +47,6 @@
         <File Id="appsettings.json"
               Source="$(var.Source)\appsettings.json"/>
 
-        <!-- Copies the pdb files using the
-                     project reference preprocessor variables -->
-        <File Id="EudicSyncToMaiMemo.Extensions.pdb"
-              Source="$(var.Source)\EudicSyncToMaiMemo.Extensions.pdb"/>
-        <File Id="EudicSyncToMaiMemo.Infrastructure.pdb"
-              Source="$(var.Source)\EudicSyncToMaiMemo.Infrastructure.pdb"/>
-        <File Id="EudicSyncToMaiMemo.Models.pdb"
-              Source="$(var.Source)\EudicSyncToMaiMemo.Models.pdb"/>
-        <File Id="EudicSyncToMaiMemo.pdb"
-              Source="$(var.Source)\EudicSyncToMaiMemo.pdb"/>
-        <File Id="EudicSyncToMaiMemo.Services.pdb"
-              Source="$(var.Source)\EudicSyncToMaiMemo.Services.pdb"/>
 
         <!-- Remove all files from the INSTALLFOLDER on uninstall -->
         <RemoveFile Id="ALLFILES" Name="*.*" On="both" />
