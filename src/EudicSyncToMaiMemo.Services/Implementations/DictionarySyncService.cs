@@ -19,20 +19,26 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <returns></returns>
         public async Task SyncDictionariesAsync(CancellationToken stoppingToken)
         {
-            // Todo: 交互需要选择同步的单词本
+            logger.LogInformation("开始同步。");
 
             // 获取欧路词典词库列表
             string eudicBookId = configuration.GetSection("Eudic:DefaultBookId").Value ?? "0";
             var eudicWords = await eudicService.GetWords(eudicBookId);
 
+            if (eudicWords.Count == 0)
+            {
+                throw new Exception("没有获取到欧路词典的单词。");
+            }
+
             // 保存到墨墨云词库
             string maiMemoNotepadId = configuration
                 .GetSection("MaiMemo:DefaultNotepadId")
                 .Value ?? throw new Exception("没有配置默认的云词库 ID。");
+
             await maiMemoService.SyncToMaimemoNotepad(maiMemoNotepadId, eudicWords);
 
-            logger.LogInformation("Sync completed.");
-        }
+            logger.LogInformation("同步完成。");
 
+        }
     }
 }

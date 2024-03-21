@@ -12,12 +12,10 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
         IServiceScopeFactory serviceScopeFactory,
         ILogger<SyncBackgroundService> logger) : BackgroundService
     {
-        private const string ClassName = nameof(SyncBackgroundService);
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation(
-            "{Name} is running.", ClassName);
+            logger.LogInformation("Sync Services is running.");
 
             try
             {
@@ -36,7 +34,7 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "{Message}", ex.Message);
+                logger.LogError(ex, "{Message}", ex.InnerException?.Message ?? ex.Message);
                 Environment.Exit(1);
             }
         }
@@ -44,9 +42,6 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
 
         private async Task DoWorkAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation(
-            "{Name} is working.", ClassName);
-
             using (IServiceScope scope = serviceScopeFactory.CreateScope())
             {
                 var dictionarySyncService =
@@ -59,8 +54,7 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation(
-                "{Name} is stopping.", ClassName);
+            logger.LogInformation("Sync Services is stopping.");
 
             await base.StopAsync(stoppingToken);
         }

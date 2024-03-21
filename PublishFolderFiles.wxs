@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="appsettings.Development.json" Guid="{FAEE3FAC-9E12-4733-B43B-A30A50F782C0}">
+                <File Id="appsettings.Development.json" KeyPath="yes" Source="SourceDir\appsettings.Development.json" />
+            </Component>
+            <Component Id="appsettings.json" Guid="{9C33CCAE-D30E-4255-B61D-F01742BEE12D}">
+                <File Id="appsettings.json" KeyPath="yes" Source="SourceDir\appsettings.json" />
+            </Component>
+            <Component Id="EudicSyncToMaiMemo.exe" Guid="{993241AF-FCF3-4BF2-A7EB-2BDB0FABBCA5}">
+                <File Id="EudicSyncToMaiMemo.exe" KeyPath="yes" Source="SourceDir\EudicSyncToMaiMemo.exe" />
+            </Component>
+            <Component Id="EudicSyncToMaiMemo.Extensions.pdb" Guid="{1155E07C-4F93-48DE-8DFB-A19026155D25}">
+                <File Id="EudicSyncToMaiMemo.Extensions.pdb" KeyPath="yes" Source="SourceDir\EudicSyncToMaiMemo.Extensions.pdb" />
+            </Component>
+            <Component Id="EudicSyncToMaiMemo.Infrastructure.pdb" Guid="{2CE6EBE8-F8BA-491B-BD24-888C5688AC14}">
+                <File Id="EudicSyncToMaiMemo.Infrastructure.pdb" KeyPath="yes" Source="SourceDir\EudicSyncToMaiMemo.Infrastructure.pdb" />
+            </Component>
+            <Component Id="EudicSyncToMaiMemo.Models.pdb" Guid="{926A9DA5-C61C-4CD7-AE9D-1CC5E21BCA3F}">
+                <File Id="EudicSyncToMaiMemo.Models.pdb" KeyPath="yes" Source="SourceDir\EudicSyncToMaiMemo.Models.pdb" />
+            </Component>
+            <Component Id="EudicSyncToMaiMemo.pdb" Guid="{E1A3588F-4481-45E0-98CC-25456CDB2C34}">
+                <File Id="EudicSyncToMaiMemo.pdb" KeyPath="yes" Source="SourceDir\EudicSyncToMaiMemo.pdb" />
+            </Component>
+            <Component Id="EudicSyncToMaiMemo.Services.pdb" Guid="{A2EC87FF-41D3-45C1-8579-BD18FBE096E9}">
+                <File Id="EudicSyncToMaiMemo.Services.pdb" KeyPath="yes" Source="SourceDir\EudicSyncToMaiMemo.Services.pdb" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="AllPublishFiles">
+            <ComponentRef Id="appsettings.Development.json" />
+            <ComponentRef Id="appsettings.json" />
+            <ComponentRef Id="EudicSyncToMaiMemo.exe" />
+            <ComponentRef Id="EudicSyncToMaiMemo.Extensions.pdb" />
+            <ComponentRef Id="EudicSyncToMaiMemo.Infrastructure.pdb" />
+            <ComponentRef Id="EudicSyncToMaiMemo.Models.pdb" />
+            <ComponentRef Id="EudicSyncToMaiMemo.pdb" />
+            <ComponentRef Id="EudicSyncToMaiMemo.Services.pdb" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>
