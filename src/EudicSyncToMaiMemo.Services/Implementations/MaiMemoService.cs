@@ -214,16 +214,16 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="originalNotepadDetail">原云词库明细</param>
         /// <param name="eudicWords"></param>
         /// <returns></returns>
-        private static FormUrlEncodedContent CreateSaveParam(NotepadDetailDto originalNotepadDetail, IEnumerable<string> eudicWords)
+        private FormUrlEncodedContent CreateSaveParam(NotepadDetailDto originalNotepadDetail, IEnumerable<string> eudicWords)
         {
-            var contentList = FilterWordToSync(originalNotepadDetail.ContentList, eudicWords);
+            var contentToSync = FilterWordToSync(originalNotepadDetail.ContentList, eudicWords);
 
             var formData = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("id", originalNotepadDetail.NotepadId.ToString()),
                 new KeyValuePair<string, string>("title", originalNotepadDetail.Title),
                 new KeyValuePair<string, string>("brief", originalNotepadDetail.Brief),
-                new KeyValuePair<string, string>("content", contentList),
+                new KeyValuePair<string, string>("content", contentToSync),
                 new KeyValuePair<string, string>("is_private", originalNotepadDetail.IsPrivacy.ToString().ToLower())
             };
 
@@ -244,12 +244,22 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="syncedWords">已同步的单词</param>
         /// <param name="eudicWords">欧路词典的单词</param>
         /// <returns></returns>
-        private static string FilterWordToSync(IEnumerable<string> syncedWords, IEnumerable<string> eudicWords)
+        private string FilterWordToSync(
+            IEnumerable<string> syncedWords, IEnumerable<string> eudicWords)
         {
             // 将欧路词典生词本多于墨墨背单词的云词库的单词提取出来，加入到墨墨背单词的云词库中
-            var wordsToSync = syncedWords.Concat(eudicWords.Except(syncedWords));
+            var eudicWordsToSync = eudicWords.Except(syncedWords);
+            var wordsToSync = syncedWords.Concat(eudicWordsToSync);
 
-            return string.Join('\n', wordsToSync);
+            var contentToSync = string.Join("\n", wordsToSync);
+
+            _logger.LogInformation("新增单词数量 {count} 条。", eudicWordsToSync.Count());
+            if (eudicWordsToSync.Any())
+            {
+                _logger.LogInformation("新增单词内容：{content} …", string.Join(", ", eudicWordsToSync.Take(10)));
+            }
+
+            return contentToSync;
         }
 
 

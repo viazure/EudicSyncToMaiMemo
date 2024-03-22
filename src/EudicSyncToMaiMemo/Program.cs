@@ -1,46 +1,27 @@
 using EudicSyncToMaiMemo.Extensions.ServiceExtensions;
 using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using EudicSyncToMaiMemo.Services.BackgroundServices;
-using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+var builder = Host.CreateApplicationBuilder(args);
 
-try
+// Configures the app to work as a Windows Service.
+builder.Services.AddWindowsService(options =>
 {
-    Log.Information("Starting application");
+    options.ServiceName = "Eudic Sync To MaiMemo Service";
+});
 
-    var builder = Host.CreateApplicationBuilder(args);
+// Add the hosted service for synchronization.
+builder.Services.AddHostedService<SyncBackgroundService>();
 
-    // Configures the app to work as a Windows Service.
-    builder.Services.AddWindowsService(options =>
-    {
-        options.ServiceName = "Eudic Sync To MaiMemo Service";
-    });
+// Set up Serilog using the provided configuration.
+builder.Services.AddSerilogSetup(builder.Configuration);
 
-    // Add the hosted service for synchronization.
-    builder.Services.AddHostedService<SyncBackgroundService>();
+// Add additional services.
+builder.Services.AddAdditionalServices();
 
-    // Set up Serilog using the provided configuration.
-    builder.Services.AddSerilogSetup(builder.Configuration);
+// Add the HttpClient.
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<IHttpHelper, HttpHelper>();
 
-    // Add additional services.
-    builder.Services.AddAdditionalServices();
-
-    // Add the HttpClient.
-    builder.Services.AddHttpClient();
-    builder.Services.AddSingleton<IHttpHelper, HttpHelper>();
-
-    using IHost host = builder.Build();
-    await host.RunAsync();
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Application terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
-}
+using IHost host = builder.Build();
+await host.RunAsync();

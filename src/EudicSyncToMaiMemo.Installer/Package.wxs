@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Define the variables in "$(var.*) expressions" -->
+<?define Name = "Eudic Sync To MaiMemo Service" ?>
+<?define Manufacturer = "viazure" ?>
+<?define Version = "1.0.0.0" ?>
+<?define Source = "W:\_publish\EudicSyncToMaiMemo" ?>
+<?define UpgradeCode = "FD9B9913-E79C-47E2-9B47-84F19D8388B3" ?>
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="$(Name)"
+           Manufacturer="$(Manufacturer)"
+           Version="$(Version)"
+           UpgradeCode="$(var.UpgradeCode)"
+           Compressed="true">
+    
+    
+    <MediaTemplate EmbedCab="yes" />
+    
+    <!-- Allow upgrades and prevent downgrades -->
+    <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+
+
+    <!-- Define the directory structure -->
+    <StandardDirectory Id="ProgramFiles64Folder">
+
+      <!-- Create a folder within the parent folder given the name -->
+      <Directory Id="INSTALLFOLDER" Name="$(Name)" />
+    </StandardDirectory>
+
+
+    <!-- The files inside this DirectoryRef are linked to
+             the Eudic Sync To MaiMemo Service directory via INSTALLFOLDER -->
+    <DirectoryRef Id="INSTALLFOLDER">
+
+      <!-- Create a single component which is the EudicSyncToMaiMemo.exe file -->
+      <Component Id="ServiceExecutable" Bitness="always64">
+
+        <!-- Copies the EudicSyncToMaiMemo.exe file using the
+                     project reference preprocessor variables -->
+        <File Id="EudicSyncToMaiMemo.exe"
+              Source="$(var.Source)\EudicSyncToMaiMemo.exe"
+              KeyPath="true" />
+
+        <!-- Copies the appsettings.json file using the
+                     project reference preprocessor variables -->
+        <File Id="appsettings.json"
+              Source="$(var.Source)\appsettings.json"/>
+
+
+        <!-- Remove all files from the INSTALLFOLDER on uninstall -->
+        <RemoveFile Id="ALLFILES" Name="*.*" On="both" />
+
+        <!-- Tell WiX to install the Service -->
+        <ServiceInstall Id="ServiceInstaller"
+                        Type="ownProcess"
+                        Name="Eudic Sync To MaiMemo Service"
+                        DisplayName="$(Name)"
+                        Description="将欧路词典收集的生词同步到墨墨背单词云词库。"
+                        Start="auto"
+                        ErrorControl="normal"  />
+
+        <!-- Tell WiX to start the Service -->
+        <ServiceControl Id="StartService"
+                        Start="install"
+                        Stop="both"
+                        Remove="uninstall"
+                        Name="Eudic Sync To MaiMemo Service"
+                        Wait="false" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Tell WiX to install the files -->
+    <Feature Id="Service" Title="Eudic Sync To MaiMemo Service Setup" Level="1">
+      <ComponentRef Id="ServiceExecutable" />
+    </Feature>
+
+  </Package>
+</Wix>
