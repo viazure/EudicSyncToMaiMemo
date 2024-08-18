@@ -2,7 +2,10 @@
 
 namespace EudicSyncToMaiMemo.Models.DTOs.MaiMemo
 {
-    public class ApiResponse
+    /// <summary>
+    /// 墨墨背单词 API 返回结果
+    /// </summary>
+    public class ApiResponseDto
     {
         [JsonProperty("valid")]
         public int Valid { get; set; } = 0;

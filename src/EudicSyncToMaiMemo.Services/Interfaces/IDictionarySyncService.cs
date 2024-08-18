@@ -2,6 +2,6 @@
 {
     public interface IDictionarySyncService
     {
-        Task SyncDictionariesAsync(CancellationToken stoppingToken);
+        Task SyncDictionaries(CancellationToken stoppingToken);
     }
 }

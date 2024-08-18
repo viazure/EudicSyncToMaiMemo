@@ -17,7 +17,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// 同步词典
         /// </summary>
         /// <returns></returns>
-        public async Task SyncDictionariesAsync(CancellationToken stoppingToken)
+        public async Task SyncDictionaries(CancellationToken stoppingToken)
         {
             // 获取欧路词典词库列表
             string eudicBookId = configuration.GetSection("Eudic:DefaultBookId").Value ?? "0";

@@ -34,8 +34,7 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "{Message}", ex.InnerException?.Message ?? ex.Message);
-                Environment.Exit(1);
+                logger.LogError(ex, "同步服务出现异常: {Message}", ex.InnerException?.Message ?? ex.Message);
             }
         }
 
@@ -47,7 +46,7 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
                 var dictionarySyncService =
                     scope.ServiceProvider.GetRequiredService<IDictionarySyncService>();
 
-                await dictionarySyncService.SyncDictionariesAsync(stoppingToken);
+                await dictionarySyncService.SyncDictionaries(stoppingToken);
             }
         }
 

@@ -3,10 +3,10 @@
 namespace EudicSyncToMaiMemo.Models.DTOs.Eudic
 {
     /// <summary>
-    /// 欧路词典接口响应
+    /// 欧路词典 API 返回结果
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ApiResponse<T>
+    public class ApiResponseDto<T>
     {
         [JsonProperty("data")]
         public List<T>? Data { get; set; }

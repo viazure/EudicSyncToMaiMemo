@@ -3,6 +3,7 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using EudicSyncToMaiMemo.Models.DTOs.MaiMemo;
+using EudicSyncToMaiMemo.Models.DTOs.Notification;
 using EudicSyncToMaiMemo.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
@@ -16,14 +17,20 @@ namespace EudicSyncToMaiMemo.Services.Implementations
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpHelper _httpHelper;
+        private readonly INotificationService _NotificationService;
         private readonly ILogger<MaiMemoService> _logger;
         private readonly Dictionary<string, string> _headers;
         private static readonly string[] separator = ["\r\n", "\n"];
 
-        public MaiMemoService(IConfiguration configuration, IHttpHelper httpHelper, ILogger<MaiMemoService> logger)
+        public MaiMemoService(
+            IConfiguration configuration,
+            IHttpHelper httpHelper,
+            INotificationService NotificationService,
+            ILogger<MaiMemoService> logger)
         {
             _configuration = configuration;
             _httpHelper = httpHelper;
+            _NotificationService = NotificationService;
             _logger = logger;
             _headers = new Dictionary<string, string>
             {
@@ -31,7 +38,6 @@ namespace EudicSyncToMaiMemo.Services.Implementations
                 { "accept", "application/json, text/javascript, */*; q=0.01"},
                 { "accept-language", "zh-CN,zh;q=0.9"},
                 { "origin", "https://www.maimemo.com"},
-                { "referer", "https://www.maimemo.com/home/login" },
             };
         }
 
@@ -53,7 +59,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             var notepadDetail = await ParseNotepadDetail(notepadId, notepadDetailHtml);
 
             // Todo: STEP 4: 过滤出需要同步的单词并组织新的云词库保存内容
-            var saveParam = CreateSaveParam(notepadDetail, eudicWords);
+            var saveParam = await CreateSaveParam(notepadDetail, eudicWords);
 
             // Todo: STEP 5: 保存到云词库
             await SaveNotepad(saveParam);
@@ -73,7 +79,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             var formData = GetLoginForm();
 
             var (responseString, cookie) = await _httpHelper.PostFoRmAsync(url, formData, _headers);
-            var response = JsonHelper.JsonToObj<ApiResponse>(responseString);
+            var response = JsonHelper.JsonToObj<ApiResponseDto>(responseString);
 
             const int ValidNumber = 1;
             if (response == null || response.Valid != ValidNumber)
@@ -214,9 +220,9 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="originalNotepadDetail">原云词库明细</param>
         /// <param name="eudicWords"></param>
         /// <returns></returns>
-        private FormUrlEncodedContent CreateSaveParam(NotepadDetailDto originalNotepadDetail, IEnumerable<string> eudicWords)
+        private async Task<FormUrlEncodedContent> CreateSaveParam(NotepadDetailDto originalNotepadDetail, IEnumerable<string> eudicWords)
         {
-            var contentToSync = FilterWordToSync(originalNotepadDetail.ContentList, eudicWords);
+            var contentToSync = await FilterWordToSync(originalNotepadDetail.ContentList, eudicWords);
 
             var formData = new List<KeyValuePair<string, string>>
             {
@@ -244,22 +250,30 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="syncedWords">已同步的单词</param>
         /// <param name="eudicWords">欧路词典的单词</param>
         /// <returns></returns>
-        private string FilterWordToSync(
+        private async Task<string> FilterWordToSync(
             IEnumerable<string> syncedWords, IEnumerable<string> eudicWords)
         {
             // 将欧路词典生词本多于墨墨背单词的云词库的单词提取出来，加入到墨墨背单词的云词库中
             var eudicWordsToSync = eudicWords.Except(syncedWords);
             var wordsToSync = syncedWords.Concat(eudicWordsToSync);
+            int total = eudicWordsToSync.Count();
+            string content = string.Empty;
 
-            var contentToSync = string.Join("\n", wordsToSync);
-
-            _logger.LogInformation("新增单词数量 {count} 条。", eudicWordsToSync.Count());
-            if (eudicWordsToSync.Any())
+            _logger.LogInformation("新增单词数量 {total} 条。", total);
+            if (total > 0)
             {
-                _logger.LogInformation("新增单词内容：{content} …", string.Join(", ", eudicWordsToSync.Take(10)));
+                content = $"{string.Join(", ", eudicWordsToSync.Take(10))} {(total > 10 ? "…" : "")}";
+                _logger.LogInformation("新增单词：{content}。", content);
             }
 
-            return contentToSync;
+            // 发送通知
+            await _NotificationService.SendNotification(new NotificationMessageDto
+            {
+                Total = total,
+                Content = content
+            });
+
+            return string.Join("\n", wordsToSync);
         }
 
 
@@ -273,7 +287,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             string url = "https://www.maimemo.com/notepad/save";
 
             var (responseString, _) = await _httpHelper.PostFoRmAsync(url, formData, _headers);
-            var response = JsonHelper.JsonToObj<ApiResponse>(responseString);
+            var response = JsonHelper.JsonToObj<ApiResponseDto>(responseString);
 
             const int ValidNumber = 1;
             if (response == null || response.Valid != ValidNumber)
