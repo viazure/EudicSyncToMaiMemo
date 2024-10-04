@@ -298,11 +298,18 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         private async Task SendNotification(IEnumerable<string> words)
         {
             int total = words.Count();
-            string content = string.Empty;
 
-            _logger.LogInformation("新增单词数量 {total} 条：{content}。", total, content);
-
-            await _notificationService.SendNotification(content);
+            if (total > 0)
+            {
+                string content = string.Join(", ", words);
+                _logger.LogInformation("新增单词数量 {total} 条，内容：{content}。", total, content);
+                await _notificationService.SendNotification(content);
+            }
+            else
+            {
+                _logger.LogInformation("新增单词数量 {total} 条，内容为空。", total);
+                await _notificationService.SendNotification("没有新增单词。");
+            }
         }
     }
 }
