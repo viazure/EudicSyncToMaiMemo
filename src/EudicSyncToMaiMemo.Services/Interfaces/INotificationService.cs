@@ -5,6 +5,6 @@
     /// </summary>
     public interface INotificationService
     {
-        Task SendNotification(string message, bool isSuccess = true);
+        Task SendNotification(string message);
     }
 }

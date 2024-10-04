@@ -1,10 +1,38 @@
 ﻿using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using Xunit;
 
+
 namespace EudicSyncToMaiMemo.Tests.Helpers
 {
     public class JsonHelperTests
     {
+        [Fact]
+        public void IsValidJson_WithValidJsonString_ReturnsTrue()
+        {
+            // Arrange
+            var validJsonString = "{\"Name\":\"John\",\"Age\":30}";
+
+            // Act
+            var isValid = JsonHelper.IsValidJson(validJsonString);
+
+            // Assert
+            Assert.True(isValid);
+        }
+
+        [Fact]
+        public void IsValidJson_WithInvalidJsonString_ReturnsFalse()
+        {
+            // Arrange
+            var invalidJsonString = "1";
+
+            // Act
+            var isValid = JsonHelper.IsValidJson(invalidJsonString);
+
+            // Assert
+            Assert.False(isValid);
+        }
+
+
         [Fact]
         public void ObjToJson_WithValidObject_ReturnsJsonString()
         {

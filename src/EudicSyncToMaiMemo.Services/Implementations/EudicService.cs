@@ -1,4 +1,5 @@
-﻿using EudicSyncToMaiMemo.Infrastructure.Helpers;
+﻿using EudicSyncToMaiMemo.Infrastructure.Exceptions;
+using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using EudicSyncToMaiMemo.Models.DTOs.Eudic;
 using EudicSyncToMaiMemo.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -64,7 +65,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(authorization))
             {
-                throw new InvalidOperationException("未设置欧路词典授权信息（Authorization）。");
+                throw new ConfigurationException("未设置欧路词典授权信息（Authorization）。");
             }
 
             return authorization;

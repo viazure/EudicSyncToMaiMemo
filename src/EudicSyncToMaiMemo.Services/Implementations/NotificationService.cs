@@ -1,4 +1,5 @@
-﻿using EudicSyncToMaiMemo.Infrastructure.Helpers;
+﻿using EudicSyncToMaiMemo.Infrastructure.Exceptions;
+using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using EudicSyncToMaiMemo.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="message">消息内容</param>
         /// <param name="isSuccess">同步是否成功</param>
         /// <returns></returns>
-        public async Task SendNotification(string message, bool isSuccess = true)
+        public async Task SendNotification(string message)
         {
             if (!configuration.GetValue<bool>("Notification:Enabled"))
             {
@@ -29,26 +30,29 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             string? templateUrl = configuration.GetValue<string>("Notification:Url");
             if (string.IsNullOrWhiteSpace(templateUrl))
             {
-                logger.LogError("通知服务 URL 配置缺失。");
-                throw new InvalidOperationException("通知服务 URL 配置缺失。");
+                throw new NotificationException("未配置通知 URL。");
             }
 
-
-            string requestUrl = ReplaceVariables(templateUrl, message, isSuccess);
+            string requestUrl = ReplaceVariables(templateUrl, message);
             if (!Uri.IsWellFormedUriString(requestUrl, UriKind.Absolute))
             {
-                logger.LogError("请求 URL 格式不正确: {RequestUrl}", requestUrl);
-                throw new InvalidOperationException("请求 URL 格式不正确。");
+                throw new NotificationException("配置的通知 URL 格式不正确。");
             }
 
             var headers = ParseHeaders(configuration.GetValue<string>("Notification:Headers"));
             string? requestBody = configuration.GetValue<string>("Notification:RequestBody");
 
-            string result = string.IsNullOrEmpty(requestBody) ?
-                await httpHelper.GetAsync(requestUrl, headers) :
-                await SendPostRequest(requestBody, requestUrl, headers);
+            try
+            {
+                string result = string.IsNullOrEmpty(requestBody)
+                    ? await httpHelper.GetAsync(requestUrl, headers) : await SendPostRequest(requestBody, requestUrl, headers);
 
-            logger.LogInformation("通知结果：{result}", result);
+                logger.LogInformation("通知成功：{result}", result);
+            }
+            catch (Exception ex)
+            {
+                throw new NotificationException("通知失败。", ex);
+            }
         }
 
         /// <summary>
@@ -74,7 +78,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         {
             if (!JsonHelper.IsValidJson(requestBody))
             {
-                throw new InvalidOperationException("通知失败，请求体不是正确的 JSON 格式。");
+                throw new NotificationException("请求体不是正确的 JSON 格式。");
             }
 
             return await httpHelper.PostAsync(requestUrl, requestBody, headers);
@@ -88,11 +92,9 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="message">消息内容</param>
         /// <param name="isSuccess">同步是否成功</param>
         /// <returns>替换后的 URL 字符串</returns>
-        public static string ReplaceVariables(string templateUrl, string message, bool isSuccess = true)
+        public static string ReplaceVariables(string templateUrl, string message)
         {
-            string result = templateUrl
-                    .Replace("{result}", isSuccess ? "同步成功" : "同步失败")
-                    .Replace("{content}", message);
+            string result = templateUrl.Replace("{content}", message);
 
             return result;
         }

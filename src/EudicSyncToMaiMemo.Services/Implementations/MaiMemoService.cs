@@ -1,6 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using EudicSyncToMaiMemo.Infrastructure.Exceptions;
 using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using EudicSyncToMaiMemo.Models.DTOs.MaiMemo;
 using EudicSyncToMaiMemo.Services.Interfaces;
@@ -129,7 +130,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(username))
             {
-                throw new InvalidOperationException("墨墨背单词用户名为空。");
+                throw new ConfigurationException("墨墨背单词用户名为空。");
             }
 
             return username;
@@ -145,7 +146,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new InvalidOperationException("墨墨背单词密码为空。");
+                throw new ConfigurationException("墨墨背单词密码为空。");
             }
 
             return password;

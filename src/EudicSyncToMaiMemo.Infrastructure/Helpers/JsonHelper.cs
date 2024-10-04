@@ -9,21 +9,30 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
         /// <summary>
         /// 校验是否为有效的 JSON 字符串
         /// </summary>
-        /// <param name="jsonString">JSON 字符串</param>
+        /// <param name="json">JSON 字符串</param>
         /// <returns>是否有效</returns>
-        public static bool IsValidJson(string jsonString)
+        public static bool IsValidJson(string json)
         {
-            if (string.IsNullOrEmpty(jsonString))
+            if (string.IsNullOrWhiteSpace(json))
             {
                 return false;
             }
 
-            try
+            json = json.Trim();
+            if ((json.StartsWith("{") && json.EndsWith("}")) || // For object
+                (json.StartsWith("[") && json.EndsWith("]"))) // For array
             {
-                var obj = JsonToObj<object>(jsonString);
-                return obj != null;
+                try
+                {
+                    var obj = JsonConvert.DeserializeObject(json);
+                    return true;
+                }
+                catch (JsonException)
+                {
+                    return false;
+                }
             }
-            catch (JsonException)
+            else
             {
                 return false;
             }
@@ -44,18 +53,18 @@ namespace EudicSyncToMaiMemo.Infrastructure.Helpers
         /// 将 JSON 字符串反序列化为对象
         /// </summary>
         /// <typeparam name="T">对象类型</typeparam>
-        /// <param name="jsonString">JSON 字符串</param>
+        /// <param name="json">JSON 字符串</param>
         /// <returns>对象实例</returns>
-        public static T? JsonToObj<T>(string jsonString)
+        public static T? JsonToObj<T>(string json)
         {
-            if (string.IsNullOrEmpty(jsonString))
+            if (string.IsNullOrEmpty(json))
             {
                 return default;
             }
 
             try
             {
-                return JsonConvert.DeserializeObject<T>(jsonString);
+                return JsonConvert.DeserializeObject<T>(json);
             }
             catch (JsonException)
             {
