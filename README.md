@@ -27,7 +27,7 @@
 
 欧路词典默认的生词本 ID 是 `0`。若希望使用特定的生词本，需按照以下步骤操作：
 
-1. 使用 API 测试工具向 <https://api.frdic.com/api/open/v1/studylist/category?language=en> 发起请求。
+1. 使用 API 测试工具向 [https://api.frdic.com/api/open/v1/studylist/category?language=en](https://api.frdic.com/api/open/v1/studylist/category?language=en) 发起请求。
 2. 查看响应数据中的生词本列表，获取所需生词本的 ID。
 
 #### 获取墨墨背单词云词库 ID
@@ -74,30 +74,74 @@
     "Username": "your_username",
     "Password": "your_password",
     "DefaultNotepadId": "0"
+  },
+  "Notification": {
+    "Enabled": false,
+    "Url": "",
+    "RequestBody": "",
+    "Headers": ""
   }
 }
 ```
 
 **字段说明：**
 
-| 来源       | 字段名           | 说明                                     | 必填 |
-| ---------- | ---------------- | ---------------------------------------- | ---- |
-| 欧路词典   | Authorization    | 接口授权，有了这个授权才能请求后续的接口 | True |
-| 欧路词典   | DefaultBookId    | 默认同步的生词本 Id，默认生词本 id 为 0  | True |
-| 墨墨背单词 | Username         | 用于登录的用户名（邮箱或手机号）         | True |
-| 墨墨背单词 | Password         | 用于登录的密码                           | True |
-| 墨墨背单词 | DefaultNotepadId | 默认同步的云词库 id                      | True |
+| 来源       | 字段名           | 说明                                            | 必填  |
+| ---------- | ---------------- | ----------------------------------------------- | ----- |
+| 欧路词典   | Authorization    | 接口授权，有了这个授权才能请求后续的接口        | True  |
+| 欧路词典   | DefaultBookId    | 默认同步的生词本 Id，默认生词本 id 为 0         | True  |
+| 墨墨背单词 | Username         | 用于登录的用户名（邮箱或手机号）                | True  |
+| 墨墨背单词 | Password         | 用于登录的密码                                  | True  |
+| 墨墨背单词 | DefaultNotepadId | 默认同步的云词库 id                             | True  |
+| 通知服务   | Enabled          | 是否启用通知                                    | False |
+| 通知服务   | Url              | 通知地址                                        | False |
+| 通知服务   | RequestBody      | 通知请求体，需将 JSON 字符串转义                | False |
+| 通知服务   | Headers          | 通知请求头，格式："key1=value1;key2=value2;..." | False |
 
 日志文件默认存储在 `%PROGRAMDATA%\EudicSyncToMaiMemo\logs` 目录中，若需要更改日志文件的存放位置，可以修改配置文件中的 Serilog 节点，具体操作是调整 WriteTo 部分中 Args 下的 path 参数。
+
+### 配置通知服务
+
+消息通知服务的接入逻辑参考了 [jeessy2/ddns-go](https://github.com/jeessy2/ddns-go) 项目的通知服务实现，特此表示感谢。
+
+#### 配置步骤
+
+1. 打开配置文件 `appsettings.json`，找到 `Notification` 节点。
+2. 将 `Enabled` 设置为 `true`，启用消息通知服务。
+3. 根据您使用的服务继续设置该节点下的 `Url`、`RequestBody`、`Headers`。
+4. RequestBody 为转义后的 JSON 字符串，例如：`{\"message\":\"同步完成：{content} \"}`。如果此内容为空，调用通知服务会使用 GET 请求，否则使用 POST 请求。
+
+**支持的变量：**
+
+| 变量名    | 说明                                                                               |
+| --------- | ---------------------------------------------------------------------------------- |
+| {content} | 消息通知内容。若同步成功且单词数量大于 0，内容为单词列表，否则为其他服务状态通知。 |
+
+**示例：**
+
+[Server 酱](https://sct.ftqq.com/)
+
+```url
+https://sctapi.ftqq.com/****************.send?title=单词同步&desp={content}
+```
+
+[AnPush](https://anpush.com/)
+
+```url
+https://api.anpush.com/push/[your_token]?title=单词同步&content={content}&channel=[your_channel]
+```
+
+更多消息通知配置可以参考：[ddns-go Webhook 配置参考](https://github.com/jeessy2/ddns-go/issues/327)
 
 ## 项目依赖
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0)
-- Visual Studio 2022 版本 17.8 或更高版本
+- [Visual Studio 2022](https://visualstudio.microsoft.com/) 版本 17.8 或更高版本
 
 ## Todo
 
-- [x] MVP 版本：默认词库自动同步（控制台程序）
-- [x] 可注册为 Windows 服务，并定期执行
-- [ ] 接入消息通知服务
+- [X] MVP 版本：默认词库自动同步（控制台程序）
+- [X] 可注册为 Windows 服务，并定期执行
+- [X] 接入消息通知服务
+- [ ] 接入 墨墨开放 API，替换现有的网页解析方案
 - [ ] 接入 Telegram Bot，用于手动选择词库同步
