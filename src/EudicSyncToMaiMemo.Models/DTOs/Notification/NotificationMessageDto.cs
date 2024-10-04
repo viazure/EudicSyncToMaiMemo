@@ -6,12 +6,12 @@
     public class NotificationMessageDto
     {
         /// <summary>
-        /// 标题
+        /// 通知消息内容
+        /// </summary>
+        public string Message { get; set; } = string.Empty;
+        /// <summary>
+        /// 同步的单词总数量
         /// </summary>
         public int Total { get; set; }
-        /// <summary>
-        /// 内容
-        /// </summary>
-        public string Content { get; set; } = string.Empty;
     }
 }

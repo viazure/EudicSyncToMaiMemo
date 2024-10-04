@@ -64,7 +64,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(authorization))
             {
-                throw new Exception("未设置欧路词典授权信息（Authorization）。");
+                throw new InvalidOperationException("未设置欧路词典授权信息（Authorization）。");
             }
 
             return authorization;

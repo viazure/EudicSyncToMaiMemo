@@ -3,7 +3,6 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using EudicSyncToMaiMemo.Models.DTOs.MaiMemo;
-using EudicSyncToMaiMemo.Models.DTOs.Notification;
 using EudicSyncToMaiMemo.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
@@ -17,7 +16,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpHelper _httpHelper;
-        private readonly INotificationService _NotificationService;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<MaiMemoService> _logger;
         private readonly Dictionary<string, string> _headers;
         private static readonly string[] separator = ["\r\n", "\n"];
@@ -30,7 +29,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         {
             _configuration = configuration;
             _httpHelper = httpHelper;
-            _NotificationService = NotificationService;
+            _notificationService = NotificationService;
             _logger = logger;
             _headers = new Dictionary<string, string>
             {
@@ -47,9 +46,9 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="notepadId">墨墨背单词云词库 ID</param>
         /// <param name="eudicWords">待同步的欧路词典单词列表</param>
         /// <returns></returns>
-        public async Task<bool> SyncToMaimemoNotepad(string notepadId, IEnumerable<string> eudicWords)
+        public async Task SyncToMaimemoNotepad(string notepadId, IEnumerable<string> eudicWords)
         {
-            // STEP 1: 登录获取 Cookie，并设置请求头
+            // STEP 1: 登录获取 Cookie
             await SetCookie();
 
             // STEP 2: 获取云词库详情页面
@@ -58,13 +57,18 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             // STEP 3: 解析云词库详情页面
             var notepadDetail = await ParseNotepadDetail(notepadId, notepadDetailHtml);
 
-            // Todo: STEP 4: 过滤出需要同步的单词并组织新的云词库保存内容
-            var saveParam = await CreateSaveParam(notepadDetail, eudicWords);
+            // STEP 4: 过滤出需要同步的单词，并组织新的云词库保存内容
+            var (filteredWords, combinedWords) = GenerateWordsToSync(notepadDetail.ContentList, eudicWords);
 
-            // Todo: STEP 5: 保存到云词库
-            await SaveNotepad(saveParam);
+            // STEP 5: 组织新的云词库保存内容，并保存到墨墨云词库
+            if (filteredWords.Any())
+            {
+                var saveParam = CreateSaveParam(notepadDetail, combinedWords);
+                await SaveNotepad(saveParam);
+            }
 
-            return true;
+            // STEP 6: 发送通知
+            await SendNotification(filteredWords);
         }
 
 
@@ -84,12 +88,12 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             const int ValidNumber = 1;
             if (response == null || response.Valid != ValidNumber)
             {
-                throw new Exception($"墨墨背单词登录失败，原因：{response?.Error}。");
+                throw new InvalidOperationException($"墨墨背单词登录失败，原因：{response?.Error}。");
             }
 
             if (cookie == null || cookie.Count == 0)
             {
-                throw new Exception("获取 Cookie 失败，Cookie 内容为空。");
+                throw new InvalidOperationException("获取 Cookie 失败，Cookie 内容为空。");
             }
 
             string cookieString = string.Join(";", cookie.Select(x => $"{x.Key}={x.Value}"));
@@ -125,7 +129,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(username))
             {
-                throw new Exception("墨墨背单词用户名为空。");
+                throw new InvalidOperationException("墨墨背单词用户名为空。");
             }
 
             return username;
@@ -141,7 +145,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new Exception("墨墨背单词密码为空。");
+                throw new InvalidOperationException("墨墨背单词密码为空。");
             }
 
             return password;
@@ -161,6 +165,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             return responseHtml;
         }
+
 
         /// <summary>
         /// 解析云词库详情页面
@@ -215,21 +220,40 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
 
         /// <summary>
+        /// 生成待同步的单词列表
+        /// </summary>
+        /// <param name="syncedWords">已同步的单词</param>
+        /// <param name="eudicWords">欧路词典的单词</param>
+        /// <returns></returns>
+        private (IEnumerable<string> filteredWords, IEnumerable<string> combinedWords) GenerateWordsToSync(
+            IEnumerable<string> syncedWords, IEnumerable<string> eudicWords)
+        {
+            // 过滤出欧路词典单词列表中不存在于已同步的单词列表中的单词
+            var filteredWords = eudicWords.Except(syncedWords);
+
+            // 合并已同步的单词列表和过滤后的单词列表
+            var combinedWords = syncedWords.Concat(filteredWords);
+
+            return (filteredWords, combinedWords);
+        }
+
+
+        /// <summary>
         /// 组织新的云词库保存内容
         /// </summary>
         /// <param name="originalNotepadDetail">原云词库明细</param>
-        /// <param name="eudicWords"></param>
+        /// <param name="wordsToSync">欧路词典单词列表</param>
         /// <returns></returns>
-        private async Task<FormUrlEncodedContent> CreateSaveParam(NotepadDetailDto originalNotepadDetail, IEnumerable<string> eudicWords)
+        private FormUrlEncodedContent CreateSaveParam(NotepadDetailDto originalNotepadDetail, IEnumerable<string> wordsToSync)
         {
-            var contentToSync = await FilterWordToSync(originalNotepadDetail.ContentList, eudicWords);
+            string wordsToSyncStr = string.Join("\n", wordsToSync);
 
             var formData = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("id", originalNotepadDetail.NotepadId.ToString()),
                 new KeyValuePair<string, string>("title", originalNotepadDetail.Title),
                 new KeyValuePair<string, string>("brief", originalNotepadDetail.Brief),
-                new KeyValuePair<string, string>("content", contentToSync),
+                new KeyValuePair<string, string>("content",  wordsToSyncStr),
                 new KeyValuePair<string, string>("is_private", originalNotepadDetail.IsPrivacy.ToString().ToLower())
             };
 
@@ -242,38 +266,6 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             }
 
             return new FormUrlEncodedContent(formData);
-        }
-
-        /// <summary>
-        /// 过滤出需要同步的单词
-        /// </summary>
-        /// <param name="syncedWords">已同步的单词</param>
-        /// <param name="eudicWords">欧路词典的单词</param>
-        /// <returns></returns>
-        private async Task<string> FilterWordToSync(
-            IEnumerable<string> syncedWords, IEnumerable<string> eudicWords)
-        {
-            // 将欧路词典生词本多于墨墨背单词的云词库的单词提取出来，加入到墨墨背单词的云词库中
-            var eudicWordsToSync = eudicWords.Except(syncedWords);
-            var wordsToSync = syncedWords.Concat(eudicWordsToSync);
-            int total = eudicWordsToSync.Count();
-            string content = string.Empty;
-
-            _logger.LogInformation("新增单词数量 {total} 条。", total);
-            if (total > 0)
-            {
-                content = $"{string.Join(", ", eudicWordsToSync.Take(10))} {(total > 10 ? "…" : "")}";
-                _logger.LogInformation("新增单词：{content}。", content);
-            }
-
-            // 发送通知
-            await _NotificationService.SendNotification(new NotificationMessageDto
-            {
-                Total = total,
-                Content = content
-            });
-
-            return string.Join("\n", wordsToSync);
         }
 
 
@@ -292,8 +284,24 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             const int ValidNumber = 1;
             if (response == null || response.Valid != ValidNumber)
             {
-                throw new Exception($"同步失败，原因：{response?.Error}。");
+                throw new InvalidOperationException($"保存墨墨云词库失败：{response?.Error}。");
             }
+        }
+
+
+        /// <summary>
+        /// 发送通知
+        /// </summary>
+        /// <param name="words">同步成功的新单词列表</param>
+        /// <returns></returns>
+        private async Task SendNotification(IEnumerable<string> words)
+        {
+            int total = words.Count();
+            string content = string.Empty;
+
+            _logger.LogInformation("新增单词数量 {total} 条：{content}。", total, content);
+
+            await _notificationService.SendNotification(content);
         }
     }
 }

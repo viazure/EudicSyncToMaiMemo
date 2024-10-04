@@ -10,12 +10,13 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
     /// </summary>
     public class SyncBackgroundService(
         IServiceScopeFactory serviceScopeFactory,
+        INotificationService notificationService,
         ILogger<SyncBackgroundService> logger) : BackgroundService
     {
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation("Sync Services is running.");
+            logger.LogInformation("同步服务启动。");
 
             try
             {
@@ -31,6 +32,13 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
             {
                 // When the stopping token is canceled, for example, a call made from services.msc,
                 // we shouldn't exit with a non-zero exit code. In other words, this is expected...
+                await notificationService.SendNotification("同步服务已停止。");
+                logger.LogInformation("同步服务已停止。");
+            }
+            catch (InvalidOperationException ex)
+            {
+                await notificationService.SendNotification(ex.Message);
+                logger.LogError(ex, "同步失败：{Message}", ex.Message);
             }
             catch (Exception ex)
             {

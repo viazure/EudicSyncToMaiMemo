@@ -25,18 +25,17 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             if (eudicWords.Count == 0)
             {
-                throw new Exception("没有获取到欧路词典的单词。");
+                throw new InvalidOperationException("没有获取到欧路词典的单词。");
             }
 
             // 保存到墨墨云词库
             string maiMemoNotepadId = configuration
                 .GetSection("MaiMemo:DefaultNotepadId")
-                .Value ?? throw new Exception("没有配置默认的云词库 ID。");
+                .Value ?? throw new InvalidOperationException("没有配置默认的云词库 ID。");
 
             await maiMemoService.SyncToMaimemoNotepad(maiMemoNotepadId, eudicWords);
 
             logger.LogInformation("同步完成。");
-
         }
     }
 }
