@@ -10,8 +10,9 @@ namespace EudicSyncToMaiMemo.Extensions.ServiceExtensions
         {
             services.AddScoped<IEudicService, EudicService>();
             services.AddScoped<IMaiMemoService, MaiMemoService>();
-            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IDictionarySyncService, DictionarySyncService>();
+
+            services.AddSingleton<INotificationService, NotificationService>();
 
             return services;
         }

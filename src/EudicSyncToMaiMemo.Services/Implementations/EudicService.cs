@@ -1,4 +1,5 @@
-﻿using EudicSyncToMaiMemo.Infrastructure.Helpers;
+﻿using EudicSyncToMaiMemo.Infrastructure.Exceptions;
+using EudicSyncToMaiMemo.Infrastructure.Helpers;
 using EudicSyncToMaiMemo.Models.DTOs.Eudic;
 using EudicSyncToMaiMemo.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -24,9 +25,9 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             {
                 { "Authorization", GetAuthorization() }
             };
-            string result = await httpHelper.GetAsync(url);
+            string result = await httpHelper.GetAsync(url, headers);
 
-            return JsonHelper.JsonToObj<ApiResponse<BookDto>>(result)?.Data ?? [];
+            return JsonHelper.JsonToObj<ApiResponseDto<BookDto>>(result)?.Data ?? [];
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             };
             string responseString = await httpHelper.GetAsync(url, headers);
 
-            var eudicWords = JsonHelper.JsonToObj<ApiResponse<WordDto>>(responseString)?.Data;
+            var eudicWords = JsonHelper.JsonToObj<ApiResponseDto<WordDto>>(responseString)?.Data;
 
             if (eudicWords == null)
             {
@@ -64,7 +65,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(authorization))
             {
-                throw new Exception("未设置欧路词典授权信息（Authorization）。");
+                throw new ConfigurationException("未设置欧路词典授权信息（Authorization）。");
             }
 
             return authorization;
