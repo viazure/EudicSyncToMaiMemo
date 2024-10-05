@@ -1,5 +1,6 @@
 ﻿using EudicSyncToMaiMemo.Infrastructure.Exceptions;
 using EudicSyncToMaiMemo.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
     public class SyncBackgroundService(
         IServiceScopeFactory serviceScopeFactory,
         INotificationService notificationService,
+        IConfiguration configuration,
         ILogger<SyncBackgroundService> logger) : BackgroundService
     {
 
@@ -25,8 +27,8 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
                 {
                     await DoWorkAsync(stoppingToken);
 
-                    // 一周同步一次
-                    await Task.Delay(TimeSpan.FromDays(7), stoppingToken);
+                    int interval = configuration.GetValue<int>("SyncInterval");
+                    await Task.Delay(TimeSpan.FromDays(interval), stoppingToken);
                 }
             }
             catch (OperationCanceledException)

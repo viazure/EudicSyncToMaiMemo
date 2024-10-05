@@ -58,7 +58,7 @@
 4. 打开 Windows 的「服务」管理器。
 5. 找到并启动「Eudic Sync To MaiMemo Service」。
 
-当设置为 Windows 服务时，程序将自动每 7 天同步一次。
+**程序支持通过配置文件中的 SyncInterval 参数自定义同步间隔。此参数的值表示同步的频率（以天为单位）。默认情况下，同步间隔为每 7 天一次。**
 
 ### 修改配置文件
 
@@ -140,8 +140,8 @@ https://api.anpush.com/push/[your_token]?title=单词同步&content={content}&ch
 
 ## Todo
 
-- [X] MVP 版本：默认词库自动同步（控制台程序）
-- [X] 可注册为 Windows 服务，并定期执行
-- [X] 接入消息通知服务
+- [x] MVP 版本：默认词库自动同步（控制台程序）
+- [x] 可注册为 Windows 服务，并定期执行
+- [x] 接入消息通知服务
 - [ ] 接入 墨墨开放 API，替换现有的网页解析方案
 - [ ] 接入 Telegram Bot，用于手动选择词库同步
