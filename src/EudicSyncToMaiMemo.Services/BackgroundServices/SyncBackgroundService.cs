@@ -52,7 +52,6 @@ namespace EudicSyncToMaiMemo.Services.BackgroundServices
             }
             catch (Exception ex)
             {
-                await notificationService.SendNotification("同步服务出现异常，详情请查看日志。");
                 logger.LogError(ex, "同步服务出现异常: {Message}", ex.InnerException?.Message ?? ex.Message);
             }
         }
