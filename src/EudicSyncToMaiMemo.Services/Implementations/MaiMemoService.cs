@@ -285,7 +285,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             const int ValidNumber = 1;
             if (response == null || response.Valid != ValidNumber)
             {
-                throw new InvalidOperationException($"保存墨墨云词库失败：{response?.Error}。");
+                throw new InvalidOperationException($"保存墨墨云词库失败：{response?.Error}。原始响应内容：{responseString}。");
             }
         }
 

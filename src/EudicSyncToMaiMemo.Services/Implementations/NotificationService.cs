@@ -36,7 +36,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             string requestUrl = ReplaceVariables(templateUrl, message);
             if (!Uri.IsWellFormedUriString(requestUrl, UriKind.Absolute))
             {
-                throw new NotificationException("配置的通知 URL 格式不正确。");
+                throw new NotificationException($"配置的通知 URL 格式不正确。通知 URL：{requestUrl}");
             }
 
             var headers = ParseHeaders(configuration.GetValue<string>("Notification:Headers"));
@@ -51,7 +51,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             }
             catch (Exception ex)
             {
-                throw new NotificationException("通知失败。", ex);
+                throw new NotificationException($"通知失败。通知 URL：{requestUrl}", ex);
             }
         }
 
