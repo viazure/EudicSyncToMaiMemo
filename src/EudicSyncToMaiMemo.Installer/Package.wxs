@@ -3,7 +3,7 @@
 <!-- Define the variables in "$(var.*) expressions" -->
 <?define Name = "Eudic Sync To MaiMemo Service" ?>
 <?define Manufacturer = "viazure" ?>
-<?define Version = "1.1.1.0" ?>
+<?define Version = "1.2.0.0" ?>
 <?define Source = "W:\_publish\EudicSyncToMaiMemo" ?>
 <?define UpgradeCode = "FD9B9913-E79C-47E2-9B47-84F19D8388B3" ?>
 
