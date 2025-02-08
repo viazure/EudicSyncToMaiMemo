@@ -13,33 +13,21 @@ namespace EudicSyncToMaiMemo.Services.Implementations
     /// <summary>
     /// 墨墨背单词服务实现
     /// </summary>
-    public class MaiMemoService : IMaiMemoService
+    public class MaiMemoService(
+        IConfiguration configuration,
+        IHttpHelper httpHelper,
+        INotificationService notificationService,
+        ILogger<MaiMemoService> logger)
+        : IMaiMemoService
     {
-        private readonly IConfiguration _configuration;
-        private readonly IHttpHelper _httpHelper;
-        private readonly INotificationService _notificationService;
-        private readonly ILogger<MaiMemoService> _logger;
-        private readonly Dictionary<string, string> _headers;
-        private static readonly string[] separator = ["\r\n", "\n"];
-
-        public MaiMemoService(
-            IConfiguration configuration,
-            IHttpHelper httpHelper,
-            INotificationService NotificationService,
-            ILogger<MaiMemoService> logger)
+        private readonly Dictionary<string, string> _headers = new()
         {
-            _configuration = configuration;
-            _httpHelper = httpHelper;
-            _notificationService = NotificationService;
-            _logger = logger;
-            _headers = new Dictionary<string, string>
-            {
-                { "authority", "www.maimemo.com" },
-                { "accept", "application/json, text/javascript, */*; q=0.01"},
-                { "accept-language", "zh-CN,zh;q=0.9"},
-                { "origin", "https://www.maimemo.com"},
-            };
-        }
+            { "authority", "www.maimemo.com" },
+            { "accept", "application/json, text/javascript, */*; q=0.01"},
+            { "accept-language", "zh-CN,zh;q=0.9"},
+            { "origin", "https://www.maimemo.com"},
+        };
+        private static readonly string[] Separator = ["\r\n", "\n"];
 
         /// <summary>
         /// 同步到墨墨背单词云词库
@@ -47,7 +35,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="notepadId">墨墨背单词云词库 ID</param>
         /// <param name="eudicWords">待同步的欧路词典单词列表</param>
         /// <returns></returns>
-        public async Task SyncToMaimemoNotepad(string notepadId, IEnumerable<string> eudicWords)
+        public async Task SyncToMaimemoNotepad(string notepadId, List<string> eudicWords)
         {
             // STEP 1: 登录获取 Cookie
             await SetCookie();
@@ -62,7 +50,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             var (filteredWords, combinedWords) = GenerateWordsToSync(notepadDetail.ContentList, eudicWords);
 
             // STEP 5: 组织新的云词库保存内容，并保存到墨墨云词库
-            if (filteredWords.Any())
+            if (filteredWords.Count > 0)
             {
                 var saveParam = CreateSaveParam(notepadDetail, combinedWords);
                 await SaveNotepad(saveParam);
@@ -79,15 +67,15 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <returns>Cookie 键值对</returns>
         private async Task SetCookie()
         {
-            string url = "https://www.maimemo.com/auth/login";
+            const string url = "https://www.maimemo.com/auth/login";
 
             var formData = GetLoginForm();
 
-            var (responseString, cookie) = await _httpHelper.PostFoRmAsync(url, formData, _headers);
+            var (responseString, cookie) = await httpHelper.PostFoRmAsync(url, formData, _headers);
             var response = JsonHelper.JsonToObj<ApiResponseDto>(responseString);
 
-            const int ValidNumber = 1;
-            if (response == null || response.Valid != ValidNumber)
+            const int validNumber = 1;
+            if (response == null || response.Valid != validNumber)
             {
                 throw new InvalidOperationException($"墨墨背单词登录失败，原因：{response?.Error}。");
             }
@@ -126,7 +114,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <returns>Url Encode 后的用户名</returns>
         private string GetUsername()
         {
-            string? username = _configuration["MaiMemo:Username"];
+            string? username = configuration["MaiMemo:Username"];
 
             if (string.IsNullOrWhiteSpace(username))
             {
@@ -142,7 +130,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <returns>Url Encode 后的密码</returns>
         private string GetPassword()
         {
-            string? password = _configuration["MaiMemo:Password"];
+            string? password = configuration["MaiMemo:Password"];
 
             if (string.IsNullOrWhiteSpace(password))
             {
@@ -162,7 +150,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         {
             string url = $"https://www.maimemo.com/notepad/detail/{notepadId}";
 
-            var responseHtml = await _httpHelper.GetAsync(url, _headers);
+            var responseHtml = await httpHelper.GetAsync(url, _headers);
 
             return responseHtml;
         }
@@ -203,14 +191,14 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         private static List<string> ParseContentList(IDocument document)
         {
             var content = document.QuerySelector<IHtmlTextAreaElement>("#content")?.TextContent;
-            return content?.Split(separator, StringSplitOptions.RemoveEmptyEntries).ToList() ?? [];
+            return content?.Split(Separator, StringSplitOptions.RemoveEmptyEntries).ToList() ?? [];
         }
 
         private static bool ParsePrivacy(IDocument document)
         {
-            const string IsPrivacyFlag = "1";
+            const string isPrivacyFlag = "1";
             var notepadPrivacyElements = document.QuerySelectorAll("#notepadPrivacy a.active");
-            return notepadPrivacyElements.Any(e => e.GetAttribute("data-private") == IsPrivacyFlag);
+            return notepadPrivacyElements.Any(e => e.GetAttribute("data-private") == isPrivacyFlag);
         }
 
         private static List<string> ParseTags(IDocument document)
@@ -226,14 +214,14 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="syncedWords">已同步的单词</param>
         /// <param name="eudicWords">欧路词典的单词</param>
         /// <returns></returns>
-        private (IEnumerable<string> filteredWords, IEnumerable<string> combinedWords) GenerateWordsToSync(
-            IEnumerable<string> syncedWords, IEnumerable<string> eudicWords)
+        private (List<string> filteredWords, List<string> combinedWords) GenerateWordsToSync(
+            List<string> syncedWords, List<string> eudicWords)
         {
             // 过滤出欧路词典单词列表中不存在于已同步的单词列表中的单词
-            var filteredWords = eudicWords.Except(syncedWords);
+            var filteredWords = eudicWords.Except(syncedWords).ToList();
 
             // 合并已同步的单词列表和过滤后的单词列表
-            var combinedWords = syncedWords.Concat(filteredWords);
+            var combinedWords = syncedWords.Concat(filteredWords).ToList();
 
             return (filteredWords, combinedWords);
         }
@@ -245,13 +233,13 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// <param name="originalNotepadDetail">原云词库明细</param>
         /// <param name="wordsToSync">欧路词典单词列表</param>
         /// <returns></returns>
-        private FormUrlEncodedContent CreateSaveParam(NotepadDetailDto originalNotepadDetail, IEnumerable<string> wordsToSync)
+        private FormUrlEncodedContent CreateSaveParam(NotepadDetailDto originalNotepadDetail, List<string> wordsToSync)
         {
             string wordsToSyncStr = string.Join("\n", wordsToSync);
 
             var formData = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("id", originalNotepadDetail.NotepadId.ToString()),
+                new KeyValuePair<string, string>("id", originalNotepadDetail.NotepadId),
                 new KeyValuePair<string, string>("title", originalNotepadDetail.Title),
                 new KeyValuePair<string, string>("brief", originalNotepadDetail.Brief),
                 new KeyValuePair<string, string>("content",  wordsToSyncStr),
@@ -279,11 +267,11 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         {
             string url = "https://www.maimemo.com/notepad/save";
 
-            var (responseString, _) = await _httpHelper.PostFoRmAsync(url, formData, _headers);
+            var (responseString, _) = await httpHelper.PostFoRmAsync(url, formData, _headers);
             var response = JsonHelper.JsonToObj<ApiResponseDto>(responseString);
 
-            const int ValidNumber = 1;
-            if (response == null || response.Valid != ValidNumber)
+            const int validNumber = 1;
+            if (response is not { Valid: validNumber })
             {
                 throw new InvalidOperationException($"保存墨墨云词库失败：{response?.Error}。原始响应内容：{responseString}。");
             }
@@ -295,20 +283,20 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// </summary>
         /// <param name="words">同步成功的新单词列表</param>
         /// <returns></returns>
-        private async Task SendNotification(IEnumerable<string> words)
+        private async Task SendNotification(List<string> words)
         {
-            int total = words.Count();
+            int total = words.Count;
 
             if (total > 0)
             {
                 string content = string.Join(", ", words);
-                _logger.LogInformation("新增单词数量 {total} 条，内容：{content}。", total, content);
-                await _notificationService.SendNotification(content);
+                logger.LogInformation("新增单词数量 {total} 条，内容：{content}。", total, content);
+                await notificationService.SendNotification(content);
             }
             else
             {
-                _logger.LogInformation("新增单词数量 {total} 条，内容为空。", total);
-                await _notificationService.SendNotification("没有新增单词。");
+                logger.LogInformation("新增单词数量 {total} 条，内容为空。", total);
+                await notificationService.SendNotification("没有新增单词。");
             }
         }
     }

@@ -18,7 +18,6 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// 发送通知
         /// </summary>
         /// <param name="message">消息内容</param>
-        /// <param name="isSuccess">同步是否成功</param>
         /// <returns></returns>
         public async Task SendNotification(string message)
         {
@@ -56,7 +55,7 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// </summary>
         /// <param name="headersStr">Headers 配置字符串，格式为 "key1=value1;key2=value2;..."</param>
         /// <returns>Headers 字典</returns>
-        private Dictionary<string, string>? ParseHeaders(string? headersStr)
+        private static Dictionary<string, string>? ParseHeaders(string? headersStr)
         {
             return string.IsNullOrEmpty(headersStr) ? null : headersStr.Split(';')
                 .Select(x => x.Split('='))
@@ -86,13 +85,10 @@ namespace EudicSyncToMaiMemo.Services.Implementations
         /// </summary>
         /// <param name="templateUrl">message 模板 URL</param>
         /// <param name="message">消息内容</param>
-        /// <param name="isSuccess">同步是否成功</param>
         /// <returns>替换后的 URL 字符串</returns>
-        public static string ReplaceVariables(string templateUrl, string message)
+        private static string ReplaceVariables(string templateUrl, string message)
         {
-            string result = templateUrl.Replace("{content}", message);
-
-            return result;
+            return templateUrl.Replace("{content}", message);
         }
     }
 }

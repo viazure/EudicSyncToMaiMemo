@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 # Others
 /src/EudicSyncToMaiMemo/appsettings.Development.json
+/src/.idea/*
