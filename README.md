@@ -121,10 +121,10 @@
 
 **示例：**
 
-[Server 酱](https://sc3.ft07.com/)
+[Server 酱](https://sct.ftqq.com/r/15820)
 
 ```url
-https://<uid>.push.ft07.com/send/<sendkey>.send?title=🎈单词同步&desp={content}
+https://sctapi.ftqq.com/<SENDKEY>.send?title=单词同步&desp={content}
 ```
 
 更多消息通知配置可以参考：[ddns-go Webhook 配置参考](https://github.com/jeessy2/ddns-go/issues/327)
