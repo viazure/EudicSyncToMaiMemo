@@ -8,7 +8,7 @@
 
 ### 流程图
 
-![flow.excalidraw.png](doc/img/flow.excalidraw.png)
+![flow.excalidraw.png](docs/img/flow.excalidraw.png)
 
 ## 使用说明
 
