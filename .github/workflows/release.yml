@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-          dotnet-quality: 'stable'
+          dotnet-quality: 'ga'
 
       - name: Publish
         run: dotnet publish src/EudicSyncToMaiMemo/EudicSyncToMaiMemo.csproj -c Release -r ${{ matrix.rid }} --self-contained true /p:PublishSingleFile=true -o ./artifacts/publish/${{ matrix.rid }}
