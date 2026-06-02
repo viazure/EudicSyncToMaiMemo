@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EudicSyncToMaiMemo.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EudicSyncToMaiMemo.Extensions", "EudicSyncToMaiMemo.Extensions\EudicSyncToMaiMemo.Extensions.csproj", "{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}"
 EndProject
-Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "EudicSyncToMaiMemo.Installer", "EudicSyncToMaiMemo.Installer\EudicSyncToMaiMemo.Installer.wixproj", "{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,22 +123,6 @@ Global
 		{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}.Release|x64.Build.0 = Release|Any CPU
 		{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}.Release|x86.ActiveCfg = Release|Any CPU
 		{6FFE64C2-6B7B-4AD4-B716-9B9002B1E9D1}.Release|x86.Build.0 = Release|Any CPU
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Debug|Any CPU.Build.0 = Debug|x64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Debug|ARM64.Build.0 = Debug|ARM64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Debug|x64.ActiveCfg = Debug|x64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Debug|x64.Build.0 = Debug|x64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Debug|x86.ActiveCfg = Debug|x86
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Debug|x86.Build.0 = Debug|x86
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Release|Any CPU.ActiveCfg = Release|x64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Release|Any CPU.Build.0 = Release|x64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Release|ARM64.ActiveCfg = Release|ARM64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Release|ARM64.Build.0 = Release|ARM64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Release|x64.ActiveCfg = Release|x64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Release|x64.Build.0 = Release|x64
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Release|x86.ActiveCfg = Release|x86
-		{4CD07DC5-8D84-485F-86FF-AB86C34F34DF}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

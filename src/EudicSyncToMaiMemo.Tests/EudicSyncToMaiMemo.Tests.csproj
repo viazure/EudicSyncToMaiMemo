@@ -18,10 +18,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
-    <PackageReference Include="MSTest.TestAdapter" />
-    <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
@@ -31,6 +33,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EudicSyncToMaiMemo.Infrastructure\EudicSyncToMaiMemo.Infrastructure.csproj" />
+    <ProjectReference Include="..\EudicSyncToMaiMemo.Models\EudicSyncToMaiMemo.Models.csproj" />
     <ProjectReference Include="..\EudicSyncToMaiMemo.Services\EudicSyncToMaiMemo.Services.csproj" />
   </ItemGroup>
 

@@ -1,48 +1,45 @@
 ﻿using EudicSyncToMaiMemo.Infrastructure.Exceptions;
 using EudicSyncToMaiMemo.Infrastructure.Helpers;
+using EudicSyncToMaiMemo.Models.Configuration;
 using EudicSyncToMaiMemo.Services.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace EudicSyncToMaiMemo.Services.Implementations
 {
     /// <summary>
-    /// 通知服务实现
+    /// 同步结果 Webhook 通知
     /// </summary>
-    public class NotificationService(
-        IConfiguration configuration,
+    public sealed class NotificationService(
+        IOptions<NotificationOptions> notificationOptions,
         IHttpHelper httpHelper,
         ILogger<NotificationService> logger) : INotificationService
     {
-        /// <summary>
-        /// 发送通知
-        /// </summary>
-        /// <param name="message">消息内容</param>
-        /// <returns></returns>
-        public async Task SendNotification(string message)
+        /// <inheritdoc />
+        public async Task SendNotification(string message, CancellationToken cancellationToken = default)
         {
-            if (!configuration.GetValue<bool>("Notification:Enabled"))
+            NotificationOptions options = notificationOptions.Value;
+
+            if (!options.Enabled)
             {
                 return;
             }
 
-            string? templateUrl = configuration.GetValue<string>("Notification:Url");
-            if (string.IsNullOrWhiteSpace(templateUrl))
+            if (string.IsNullOrWhiteSpace(options.Url))
             {
-                throw new NotificationException("未配置通知 URL。");
+                throw new NotificationException("未配置通知 URL");
             }
 
-            string requestUrl = ReplaceVariables(templateUrl, message);
-
-            var headers = ParseHeaders(configuration.GetValue<string>("Notification:Headers"));
-            string? requestBody = configuration.GetValue<string>("Notification:RequestBody");
+            string requestUrl = ReplaceVariables(options.Url, message);
+            var headers = ParseHeaders(options.Headers);
 
             try
             {
-                string result = string.IsNullOrEmpty(requestBody)
-                    ? await httpHelper.GetAsync(requestUrl, headers) : await SendPostRequest(requestBody, requestUrl, headers);
+                string result = string.IsNullOrEmpty(options.RequestBody)
+                    ? await httpHelper.GetAsync(requestUrl, headers, cancellationToken)
+                    : await SendPostRequestAsync(options.RequestBody, requestUrl, headers, cancellationToken);
 
-                logger.LogInformation("通知成功：{result}", result);
+                logger.LogInformation("通知成功：{Result}", result);
             }
             catch (Exception ex)
             {
@@ -50,42 +47,29 @@ namespace EudicSyncToMaiMemo.Services.Implementations
             }
         }
 
-        /// <summary>
-        /// 解析 Headers 配置
-        /// </summary>
-        /// <param name="headersStr">Headers 配置字符串，格式为 "key1=value1;key2=value2;..."</param>
-        /// <returns>Headers 字典</returns>
-        private static Dictionary<string, string>? ParseHeaders(string? headersStr)
+        private static Dictionary<string, string>? ParseHeaders(string headersStr)
         {
-            return string.IsNullOrEmpty(headersStr) ? null : headersStr.Split(';')
-                .Select(x => x.Split('='))
-                .ToDictionary(x => x[0], x => x[1]);
+            return string.IsNullOrEmpty(headersStr)
+                ? null
+                : headersStr.Split(';')
+                    .Select(x => x.Split('='))
+                    .ToDictionary(x => x[0], x => x[1]);
         }
 
-        /// <summary>
-        /// 发送 POST 请求
-        /// </summary>
-        /// <param name="requestBody">请求体</param>
-        /// <param name="requestUrl">请求 URL</param>
-        /// <param name="headers">请求头</param>
-        /// <returns>响应内容</returns>
-        private async Task<string> SendPostRequest(string requestBody, string requestUrl, Dictionary<string, string>? headers)
+        private async Task<string> SendPostRequestAsync(
+            string requestBody,
+            string requestUrl,
+            Dictionary<string, string>? headers,
+            CancellationToken cancellationToken)
         {
             if (!JsonHelper.IsValidJson(requestBody))
             {
-                throw new NotificationException("请求体不是正确的 JSON 格式。");
+                throw new NotificationException("请求体不是正确的 JSON 格式");
             }
 
-            return await httpHelper.PostAsync(requestUrl, requestBody, headers);
+            return await httpHelper.PostAsync(requestUrl, requestBody, headers, cancellationToken);
         }
 
-
-        /// <summary>
-        /// 替换 URL 模板变量
-        /// </summary>
-        /// <param name="templateUrl">message 模板 URL</param>
-        /// <param name="message">消息内容</param>
-        /// <returns>替换后的 URL 字符串</returns>
         private static string ReplaceVariables(string templateUrl, string message)
         {
             return templateUrl.Replace("{content}", message);
