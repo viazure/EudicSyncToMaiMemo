@@ -1,0 +1,29 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        dotnet-quality: 'stable'
+
+    - name: Restore dependencies
+      run: dotnet restore src/EudicSyncToMaiMemo.slnx
+
+    - name: Build
+      run: dotnet build src/EudicSyncToMaiMemo.slnx --no-restore
+
+    - name: Test
+      run: dotnet test src/EudicSyncToMaiMemo.slnx --no-build --verbosity normal
