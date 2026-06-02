@@ -6,7 +6,7 @@
     public class NotepadDetailDto
     {
         /// <summary>
-        /// 云词库ID
+        /// 云词库 ID
         /// </summary>
         public string NotepadId { get; set; } = string.Empty;
 

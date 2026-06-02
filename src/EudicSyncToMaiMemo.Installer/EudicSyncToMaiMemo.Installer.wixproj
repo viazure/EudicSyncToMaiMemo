@@ -1,5 +1,0 @@
-﻿<Project Sdk="WixToolset.Sdk/4.0.4">
-  <ItemGroup>
-    <ProjectReference Include="..\EudicSyncToMaiMemo\EudicSyncToMaiMemo.csproj" />
-  </ItemGroup>
-</Project>

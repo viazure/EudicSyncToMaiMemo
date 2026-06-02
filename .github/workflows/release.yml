@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            archive_ext: zip
+          - os: ubuntu-latest
+            rid: linux-x64
+            archive_ext: tar.gz
+          - os: macos-latest
+            rid: osx-x64
+            archive_ext: tar.gz
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'ga'
+
+      - name: Publish
+        run: dotnet publish src/EudicSyncToMaiMemo/EudicSyncToMaiMemo.csproj -c Release -r ${{ matrix.rid }} --self-contained true /p:PublishSingleFile=true -o ./artifacts/publish/${{ matrix.rid }}
+
+      - name: Archive (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path ./artifacts/publish/${{ matrix.rid }}/* -DestinationPath ./artifacts/EudicSyncToMaiMemo-${{ github.ref_name }}-${{ matrix.rid }}.zip
+
+      - name: Archive (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir -p ./artifacts
+          tar -czf ./artifacts/EudicSyncToMaiMemo-${{ github.ref_name }}-${{ matrix.rid }}.tar.gz -C ./artifacts/publish/${{ matrix.rid }} .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./artifacts/EudicSyncToMaiMemo-${{ github.ref_name }}-${{ matrix.rid }}.${{ matrix.archive_ext }}
+          generate_release_notes: true

@@ -1,0 +1,33 @@
+name: Sync Words
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'ga'
+
+      - name: Run Sync
+        run: dotnet run --project src/EudicSyncToMaiMemo/EudicSyncToMaiMemo.csproj --configuration Release -- --sync-once
+        env:
+          Eudic__Authorization: ${{ secrets.EUDIC_AUTHORIZATION }}
+          Eudic__DefaultBookId: ${{ secrets.EUDIC_BOOK_ID }}
+          MaiMemo__Provider: OpenApi
+          MaiMemo__Token: ${{ secrets.MAIMEMO_TOKEN }}
+          MaiMemo__DefaultNotepadId: ${{ secrets.MAIMEMO_NOTEPAD_ID }}
+          Notification__Enabled: ${{ secrets.NOTIFICATION_ENABLED }}
+          Notification__Url: ${{ secrets.NOTIFICATION_URL }}
+          Notification__RequestBody: ${{ secrets.NOTIFICATION_REQUEST_BODY }}
+          Notification__Headers: ${{ secrets.NOTIFICATION_HEADERS }}
