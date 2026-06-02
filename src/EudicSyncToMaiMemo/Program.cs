@@ -9,10 +9,14 @@ var builder = Host.CreateApplicationBuilder(args);
 
 if (!syncOnce)
 {
-    builder.Services.AddWindowsService(options =>
+    if (OperatingSystem.IsWindows())
     {
-        options.ServiceName = "Eudic Sync To MaiMemo Service";
-    });
+        builder.Services.AddWindowsService(options =>
+        {
+            options.ServiceName = "Eudic Sync To MaiMemo Service";
+        });
+    }
+
     builder.Services.AddHostedService<SyncBackgroundService>();
 }
 
