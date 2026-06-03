@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  build:
     strategy:
       fail-fast: false
       matrix:
@@ -51,8 +51,31 @@ jobs:
           mkdir -p ./artifacts
           tar -czf ./artifacts/EudicSyncToMaiMemo-${{ github.ref_name }}-${{ matrix.rid }}.tar.gz -C ./artifacts/publish/${{ matrix.rid }} .
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EudicSyncToMaiMemo-${{ github.ref_name }}-${{ matrix.rid }}
+          path: ./artifacts/EudicSyncToMaiMemo-${{ github.ref_name }}-${{ matrix.rid }}.${{ matrix.archive_ext }}
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: EudicSyncToMaiMemo-*
+          merge-multiple: true
+          path: dist
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./artifacts/EudicSyncToMaiMemo-${{ github.ref_name }}-${{ matrix.rid }}.${{ matrix.archive_ext }}
+          files: dist/*
           generate_release_notes: true
