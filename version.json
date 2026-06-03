@@ -9,7 +9,7 @@
     "^refs/heads/master$"
   ],
   "release": {
-    "tagName": "{version}",
+    "tagName": "v{version}",
     "versionIncrement": "build",
     "firstUnstableTag": "beta"
   },
