@@ -4,16 +4,11 @@
   "semVer1NumericIdentifierPadding": 4,
   "gitCommitIdShortFixedLength": 10,
   "gitCommitIdShortAutoMinimum": 0,
-  "publicReleaseRefSpec": [
-    "^refs/heads/master$",
-    "^refs/heads/preivew$"
-  ],
+  "publicReleaseRefSpec": ["^refs/heads/main$", "^refs/heads/master$"],
   "release": {
     "tagName": "{version}",
     "versionIncrement": "build",
     "firstUnstableTag": "beta"
   },
-  "pathFilters": [
-    "./src"
-  ]
+  "pathFilters": ["./src"]
 }
